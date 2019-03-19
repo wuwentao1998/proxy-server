@@ -1,13 +1,6 @@
 #include "connect.h"
 
-/*
- * EFFECTS: send unix-style error to stderr
-*/
-void unix_error(char* message)
-{
-    fprintf(stderr, "%s: %s\n", message, strerror(errno));
-    exit(1);
-}
+
 
 
 /*
@@ -56,7 +49,7 @@ int open_listenfd(char* port)
         int optval = 1;
         setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, (const void *)&optval, sizeof(int));
 
-        if (bind(listenfd, p->ai_addr, p->ai_addrlen) == 0)
+        if (bind(listenfd, p->ai_addr, p->ai_addrlen) == 0) //TODO：这里两个参数的意义是什么，因为没有指定HOST啊
             break;
         else if (close(listenfd) < 0)
         {
@@ -73,7 +66,7 @@ int open_listenfd(char* port)
         if (close(listenfd) < 0)
             fprintf(stderr, "Can't close clientfd: %s\n", strerror(errno));
 
-        return -1;
+        return -2;
     }
     else
         return listenfd;
