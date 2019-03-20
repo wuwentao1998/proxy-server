@@ -1,8 +1,6 @@
 #include "connect.h"
 
 
-
-
 /*
  * EFFECTS: wrapper funtion for open_listenfd
  *          add error handling

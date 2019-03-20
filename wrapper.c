@@ -1,28 +1,41 @@
 #include "wrapper.h"
 
+/*
+ * EFFECTS: wrapper funtion for close
+ *          add error handling
+*/
 void Close(int fd)
 {
-    int rc;
+    int error = close(fd);
 
-    if ((rc = close(fd)) < 0)
-	unix_error("Close error");
+    if (error < 0)
+	    unix_error("Close error");
 }
 
-int Accept(int s, struct sockaddr *addr, socklen_t *addrlen)
+/*
+ * EFFECTS: wrapper funtion for accept
+ *          add error handling
+*/
+int Accept(int listenfd, struct sockaddr *addr, socklen_t *addrlen)
 {
-    int rc;
+    int fd = accept(listenfd, addr, addrlen);
 
-    if ((rc = accept(s, addr, addrlen)) < 0)
-	unix_error("Accept error");
-    return rc;
+    if (fd < 0)
+	    unix_error("Accept error");
+
+    return fd;
 }
 
+/*
+ * EFFECTS: wrapper funtion for getnameinfo
+ *          add error handling
+*/
 void Getnameinfo(const struct sockaddr *sa, socklen_t salen, char *host,
                  size_t hostlen, char *serv, size_t servlen, int flags)
 {
-    int rc;
+    int error = getnameinfo(sa, salen, host, hostlen, serv,
+                          servlen, flags);
 
-    if ((rc = getnameinfo(sa, salen, host, hostlen, serv,
-                          servlen, flags)) != 0)
-        gai_error(rc, "Getnameinfo error");
+    if (error != 0)
+        gai_error(error, "Getnameinfo error");
 }
