@@ -6,13 +6,13 @@ typedef struct sockaddr SA;
 int main(int argc, char** argv)
 {
 	if (argc < 2)
-    {
+	{
 		fprintf(stderr, "usage: %s <port number to bind and listen>\n", argv[0]);
 		exit(1);
 	}
 
 	int listenfd = Open_listenfd(argv[1]);
-	while (True)
+	while (true)
 	{
 		struct sockaddr_storage clientaddr; // 该结构体可以容纳任何大小的套接字，以保持协议无关
 		socklen_t clientlen = sizeof(clientaddr);

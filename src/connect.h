@@ -1,7 +1,7 @@
 #ifndef CONNECT_H
 #define CONNECT_H
 
-// #include <netdb.h>
+#include <netdb.h>
 #include "macro.h"
 #include "error.h"
 

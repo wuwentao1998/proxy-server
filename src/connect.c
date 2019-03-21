@@ -47,7 +47,7 @@ int open_listenfd(char* port)
         int optval = 1;
         setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, (const void *)&optval, sizeof(int));
 
-        if (bind(listenfd, p->ai_addr, p->ai_addrlen) == 0) //TODO：这里两个参数的意义是什么，因为没有指定HOST啊
+        if (bind(listenfd, p->ai_addr, p->ai_addrlen) == 0) 
             break;
         else if (close(listenfd) < 0)
         {
