@@ -29,8 +29,8 @@ void deal(int connectfd)
     char filename[MAXLINE], CGI_args[MAXLINE];
     bool is_static = parse_uri(URI, filename, CGI_args);
 
-    struct stat sbuf;
-    if (stat(filename, &sbuf) < 0)
+    struct stat buf;
+    if (stat(filename, &buf) < 0)
     {
         server_error(connectfd, filename, "404", "Not found",
         "Sorry, proxy can't find this file");
@@ -40,18 +40,18 @@ void deal(int connectfd)
     /* serve the content */
     if (is_static)
     {
-        if (!S_ISREG(subf.st_mode) || !(S_IRUSR & subf.st_mode))
+        if (!S_ISREG(buf.st_mode) || !(S_IRUSR & buf.st_mode)) // 是否为常规文件且可读
         {
             server_error(connectfd, filename, "403", "Forbidden",
             "Sorry, you have no permission to read this file");
             return;
         }
 
-        serve_static(connectfd, filename, subf.st_size);
+        serve_static(connectfd, filename, buf.st_size);
     }
     else
     {
-        if (!S_ISREG(subf.st_mode) || !(S_IRUSR & subf.st_mode))
+        if (!S_ISREG(buf.st_mode) || !(S_IXUSR & buf.st_mode)) // 是否为常规文件且可执行
         {
             server_error(connectfd, filename, "403", "Forbidden",
             "Sorry, you have no permission to run this CGI program");
@@ -146,13 +146,13 @@ void serve_dynamic(int fd, char* filename, char* CGI_args)
     sprintf(buffer, "HTTP/1.0 200 OK\r\n");
     Rio_writen(fd, buffer, strlen(buffer));
 
-    char* emptylist[] = {NULL};
+    char* argv[] = {NULL};
     /* child */
     if (Fork() == 0)
     {
         setenv("QUERY_STRING", CGI_args, 1);
         Dup2(fd, STDOUT_FILENO);
-        Execve(filename, emptylist, environ);
+        Execve(filename, argv, environ);
     }
 
     /* parent */

@@ -14,7 +14,7 @@ int main(int argc, char** argv)
 	int listenfd = Open_listenfd(argv[1]);
 	while (true)
 	{
-		struct sockaddr_storage clientaddr; // 该结构体可以容纳任何大小的套接字，以保持协议无关
+		struct sockaddr_storage clientaddr; // 该结构体可以容纳任何大小的套接字，以保持协议无关(socckaddr无法容纳IPv6)
 		socklen_t clientlen = sizeof(clientaddr);
 		int connectfd = Accept(listenfd, (SA*)&clientaddr, &clientlen);
 
