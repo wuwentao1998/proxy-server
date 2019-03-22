@@ -4,6 +4,7 @@
 #include<sys/stat.h>
 
 #include "wrapper.h"
+#include "robust_IO.h"
 
 void deal(int connectfd);
 void ignore_header(rio_t* rio);
