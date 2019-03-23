@@ -8,14 +8,14 @@
 void deal(int connectfd)
 {
     /* read request line and headers */
-    char buffer[MAXLINE], method[MAXLINE], URI[MAXLINE], version[MAXLINE];
+    char buffer[MAXLINE], method[MAXLINE], URL[MAXLINE], version[MAXLINE];
     rio_t rio;
 
     Rio_readinitb(&rio, connectfd);
     Rio_readlineb(&rio, buffer, MAXLINE);
     printf("Request headers:\n");
     printf("%s", buffer);
-    sscanf(buffer, "%s %s %s", method, URI, version);
+    sscanf(buffer, "%s %s %s", method, URL, version);
     if (strcmp(method, "GET") != 0)
     {
         client_error(connectfd, method, "501", "Not implemneted",
@@ -26,8 +26,9 @@ void deal(int connectfd)
     ignore_header(&rio);
 
     /* parse URI from the get request */
-    char filename[MAXLINE], CGI_args[MAXLINE];
-    bool is_static = parse_uri(URI, filename, CGI_args);
+    char host[MAXLINE], filename[MAXLINE], CGI_args[MAXLINE];
+    int port;
+    bool is_static = parse_URL(URL, host, filename, CGI_args, &port);
 
     struct stat buf;
     if (stat(filename, &buf) < 0)
@@ -78,24 +79,52 @@ void ignore_header(rio_t* rio)
  * EFFECTS: parse the URI into a filename string and a CGI arguments string
  *          return 1 if it's static content, return 0 if it's dynamic content
  * REQUIRES: the default directory of static content is the current directory
- *           the default directory of dynamic content is ./CGI-bin
+ *           the default directory of dynamic content is ./CGI_bin
  *           the default filename is ./home.html
 */
-int parse_URI(char* URI, char* filename, char* CGI_args)
+bool parse_URL(char* URL, char* host, char* filename, char* CGI_args, int* port_ptr)
 {
-    if (!strstr(URI, "CGI-bin"))
+    char* begin = URL;
+    if (strstr(URL, "http://") != NULL)
+        begin = strstr(URL, "http://") + strlen("http://");
+
+    bool isHost = false;
+    if (strstr(begin, ":") != NULL)
+    {
+        char* end = strstr(begin, ":");
+        *end = '\0';
+        strcpy(host, begin);
+        isHost = true;
+        end = end + 1;
+        sscanf(end, "%d", port_ptr);
+    }
+    else
+        *port_ptr = 80;
+
+    if (strchr(begin, '/') == NULL)
+    {
+        strcpy(filename, "./home.html");
+        if (!isHost)
+            strcpy(host, begin);
+
+        return true;
+    }
+    else
+        URL = strchr(begin, '/');
+
+    if (!strstr(URL, "CGI_bin"))
     {
         strcpy(CGI_args, "");
         strcpy(filename, ".");
-        strcat(filename, URI);
-        if (URI[strlen(URI) -  1] == '/')
+        strcat(filename, URL);
+        if (URL[strlen(URL) -  1] == '/')
             strcat(filename, "home.html");
 
-        return 1;
+        return true;
     }
     else
     {
-        char* ptr = strchr(URI, '?');
+        char* ptr = strchr(URL, '?');
         if (ptr != 0)
         {
             strcpy(CGI_args, ptr + 1);
@@ -105,8 +134,8 @@ int parse_URI(char* URI, char* filename, char* CGI_args)
             strcpy(CGI_args, "");
 
         strcpy(filename, ".");
-        strcat(filename, URI);
-        return 0;
+        strcat(filename, URL);
+        return false;
     }
 }
 
@@ -120,9 +149,9 @@ void serve_static(int fd, char* filename, int filesize)
     char filetype[MAXLINE], buffer[MAXLINE];
     get_filetype(filename, filetype);
     sprintf(buffer, "HTTP/1.0 200 OK\r\n");
-    sprintf(buffer, "%sConnection: close\r\n", buffer);
     sprintf(buffer, "%sContent-length: %d \r\n", buffer, filesize);
     sprintf(buffer, "%sContent-type: %s\r\n", buffer, filetype);
+    sprintf(buffer, "%s\r\n", buffer);
     Rio_writen(fd, buffer, strlen(buffer));
     printf("Response headers:\n");
     printf("%s", buffer);
@@ -144,6 +173,7 @@ void serve_dynamic(int fd, char* filename, char* CGI_args)
     char buffer[MAXLINE];
 
     sprintf(buffer, "HTTP/1.0 200 OK\r\n");
+    sprintf(buffer, "%s\r\n", buffer);
     Rio_writen(fd, buffer, strlen(buffer));
 
     char* argv[] = {NULL};

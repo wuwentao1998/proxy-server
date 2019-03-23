@@ -10,6 +10,7 @@ int main(int argc, char** argv)
 		fprintf(stderr, "usage: %s <port number to bind and listen>\n", argv[0]);
 		exit(1);
 	}
+ 	// Signal(SIGPIPE,SIG_IGN);
 
 	int listenfd = Open_listenfd(argv[1]);
 	while (true)

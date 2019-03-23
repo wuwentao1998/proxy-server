@@ -1,3 +1,4 @@
 *.exe
 *.pdf
 proxylab-handout/
+test.c

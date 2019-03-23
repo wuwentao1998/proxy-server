@@ -29,7 +29,7 @@ int open_listenfd(char* port)
     hints.ai_flags = AI_PASSIVE | AI_ADDRCONFIG | AI_NUMERICSERV;
 
     int error_code = getaddrinfo(NULL, port, &hints, &list_ptr);
-    if (error_code < 0)
+    if (error_code != 0)
     {
         fprintf(stderr, "Getaddrinfo failed (with port number: %s) : %s\n",
          port, gai_strerror(error_code));
@@ -47,7 +47,7 @@ int open_listenfd(char* port)
         int optval = 1;
         setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, (const void *)&optval, sizeof(int));
 
-        if (bind(listenfd, p->ai_addr, p->ai_addrlen) == 0) 
+        if (bind(listenfd, p->ai_addr, p->ai_addrlen) == 0)
             break;
         else if (close(listenfd) < 0)
         {
