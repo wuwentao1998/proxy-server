@@ -31,4 +31,6 @@ ssize_t	rio_readnb(rio_t *rp, void *usrbuf, size_t n);
 ssize_t Rio_readlineb(rio_t *rp, void *usrbuf, size_t maxlen);
 ssize_t	rio_readlineb(rio_t *rp, void *usrbuf, size_t maxlen);
 
+/* helper function */
+ssize_t rio_read(rio_t* rp, char* usrbuf, size_t n);
 #endif

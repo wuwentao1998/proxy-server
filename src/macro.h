@@ -6,6 +6,6 @@
 #define RIO_BUFSIZE 4096
 #define MAX_CACHE_SIZE 1049000
 #define MAX_OBJECT_SIZE 102400
-
+#define PORT_LEN 10
 
 #endif

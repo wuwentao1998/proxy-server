@@ -1,72 +1,66 @@
 #include "http.h"
 
 /*
- * EFFECTS: handle the HTTP request
- *          read and parse the request
- *          then serve the static or dynamic conetent
+ * EFFECTS: transfer request from client to end server
+ *          then receive message from end server and transfer to client
 */
-void deal(int connectfd)
+void deal(int clientfd)
 {
     /* read request line and headers */
     char buffer[MAXLINE], method[MAXLINE], URL[MAXLINE], version[MAXLINE];
-    rio_t rio;
+    rio_t client_rio;
 
-    Rio_readinitb(&rio, connectfd);
-    Rio_readlineb(&rio, buffer, MAXLINE);
-    printf("Request headers:\n");
-    printf("%s", buffer);
+    Rio_readinitb(&client_rio, clientfd);
+    Rio_readlineb(&client_rio, buffer, MAXLINE);
+    // printf("Request headers:\n");
+    // printf("%s", buffer);
     sscanf(buffer, "%s %s %s", method, URL, version);
     if (strcmp(method, "GET") != 0)
     {
-        client_error(connectfd, method, "501", "Not implemneted",
+        client_error(clientfd, method, "501", "Not implemneted",
         "Sorry, this proxy can't implement this method");
         return;
     }
 
-    ignore_header(&rio);
+    ignore_remaining_header(&client_rio);
 
-    /* parse URI from the get request */
+    /* parse URL */
     char host[MAXLINE], filename[MAXLINE], CGI_args[MAXLINE];
     int port;
     bool is_static = parse_URL(URL, host, filename, CGI_args, &port);
 
-    struct stat buf;
-    if (stat(filename, &buf) < 0)
+    /* build http header for end server */
+    char http_header[MAXLINE];
+    build_http_header(http_header, host, filename, port);
+
+    /* connect to end server */
+    char port_string[PORT_LEN];
+    sprintf(port_string, "%d", port);
+    int end_serverfd = Open_serverfd(host, port_string);
+
+    /* receive message from server, send it to client */
+    char message[MAX_OBJECT_SIZE];
+    int message_size = 0;
+    rio_t server_rio;
+    Rio_readinitb(&server_rio, end_serverfd);
+
+    size_t n;
+    while((n = Rio_readlineb(&server_rio, buffer, MAXLINE))!= 0)
     {
-        server_error(connectfd, filename, "404", "Not found",
-        "Sorry, proxy can't find this file");
-        return;
+        message_size += n;
+        if(message_size < MAX_OBJECT_SIZE)
+            strcat(message, buffer);
+
+        Rio_writen(clientfd , message, n);
     }
 
-    /* serve the content */
-    if (is_static)
-    {
-        if (!S_ISREG(buf.st_mode) || !(S_IRUSR & buf.st_mode)) // 是否为常规文件且可读
-        {
-            server_error(connectfd, filename, "403", "Forbidden",
-            "Sorry, you have no permission to read this file");
-            return;
-        }
-
-        serve_static(connectfd, filename, buf.st_size);
-    }
-    else
-    {
-        if (!S_ISREG(buf.st_mode) || !(S_IXUSR & buf.st_mode)) // 是否为常规文件且可执行
-        {
-            server_error(connectfd, filename, "403", "Forbidden",
-            "Sorry, you have no permission to run this CGI program");
-            return;
-        }
-
-        serve_dynamic(connectfd, filename, CGI_args);
-    }
+    Close(end_serverfd);
 }
 
 /*
- * EFFECTS: read and ignore the request header
+ * EFFECTS: read and ignore the remaining request header
 */
-void ignore_header(rio_t* rio)
+void ignore_remaining_header(rio_t* rio)
 {
     char buffer[MAXLINE];
 
@@ -80,7 +74,7 @@ void ignore_header(rio_t* rio)
  *          return 1 if it's static content, return 0 if it's dynamic content
  * REQUIRES: the default directory of static content is the current directory
  *           the default directory of dynamic content is ./CGI_bin
- *           the default filename is ./home.html
+ *           the default filename is ./index.html
 */
 bool parse_URL(char* URL, char* host, char* filename, char* CGI_args, int* port_ptr)
 {
@@ -103,7 +97,7 @@ bool parse_URL(char* URL, char* host, char* filename, char* CGI_args, int* port_
 
     if (strchr(begin, '/') == NULL)
     {
-        strcpy(filename, "./home.html");
+        strcpy(filename, "./index.html");
         if (!isHost)
             strcpy(host, begin);
 
@@ -118,7 +112,7 @@ bool parse_URL(char* URL, char* host, char* filename, char* CGI_args, int* port_
         strcpy(filename, ".");
         strcat(filename, URL);
         if (URL[strlen(URL) -  1] == '/')
-            strcat(filename, "home.html");
+            strcat(filename, "index.html");
 
         return true;
     }
@@ -203,3 +197,21 @@ void get_filetype(char* filename, char* filetype)
     else
         strcpy(filetype, "text/plain");
 }
+
+/*
+ * EFFECTS: build the http header
+*/
+void build_http_header(char* http_header, char* host, char* filename, int port)
+{
+    /* request line */
+    sprintf(http_header, "GET %s HTTP/1.0\r\n", filename + 1); // filename以 . 开头，所以这里 +1
+
+    /* remaining header */
+    sprintf(http_header, "%s%s%s%s%s",
+            _host,
+            _connection,
+            _proxy,
+            _user_agent,
+            _blank_line);
+}
+

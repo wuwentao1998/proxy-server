@@ -1,38 +1,5 @@
 #include "robust_IO.h"
 
-/*
- * EFFECTS: internal helper function
- *          wrapper for the Unix read()
- *          transfer min(n, rio_cnt) bytes from an internal buffer to a user
- *          buffer, where n is the number of bytes requested by the user and
- *          rio_cnt is the number of unread bytes in the internal buffer.
- */
-static ssize_t rio_read(rio_t* rp, char* usrbuf, size_t n)
-{
-    while (rp->rio_cnt <= 0)
-    {
-        rp->rio_cnt = read(rp->rio_fd, rp->rio_buf, sizeof(rp->rio_buf));
-
-        if (rp->rio_cnt < 0)
-        {
-            if (errno != EINTR)
-                return -1;
-        }
-        else if (rp->rio_cnt == 0)
-            return 0;
-        else
-            rp->rio_bufptr = rp->rio_buf;
-    }
-
-    int cnt = n;
-    if (rp->rio_cnt < n)
-        cnt = rp->rio_cnt;
-
-    memcpy(usrbuf, rp->rio_bufptr, cnt);
-    rp->rio_bufptr += cnt;
-    rp->rio_cnt -= cnt;
-    return cnt;
-}
 
 /*
  * EFFECTS: wrapper funtion for rio_readn
@@ -233,6 +200,38 @@ ssize_t	rio_readlineb(rio_t *rp, void *usrbuf, size_t maxlen)
     return n - 1;
 }
 
+/*
+ * EFFECTS: internal helper function
+ *          wrapper for the Unix read()
+ *          transfer min(n, rio_cnt) bytes from an internal buffer to a user
+ *          buffer, where n is the number of bytes requested by the user and
+ *          rio_cnt is the number of unread bytes in the internal buffer.
+ */
+ssize_t rio_read(rio_t* rp, char* usrbuf, size_t n)
+{
+    while (rp->rio_cnt <= 0)
+    {
+        rp->rio_cnt = read(rp->rio_fd, rp->rio_buf, sizeof(rp->rio_buf));
 
+        if (rp->rio_cnt < 0)
+        {
+            if (errno != EINTR)
+                return -1;
+        }
+        else if (rp->rio_cnt == 0)
+            return 0;
+        else
+            rp->rio_bufptr = rp->rio_buf;
+    }
+
+    int cnt = n;
+    if (rp->rio_cnt < n)
+        cnt = rp->rio_cnt;
+
+    memcpy(usrbuf, rp->rio_bufptr, cnt);
+    rp->rio_bufptr += cnt;
+    rp->rio_cnt -= cnt;
+    return cnt;
+}
 
 

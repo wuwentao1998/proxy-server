@@ -6,11 +6,21 @@
 #include "wrapper.h"
 #include "robust_IO.h"
 
-void deal(int connectfd);
-void ignore_header(rio_t* rio);
+/* http header string */
+static const char* _user_agent = "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:10.0.3) Gecko/20120305 Firefox/10.0.3\r\n";
+static const char* _connection = "Connection: close\r\n";
+static const char* _proxy = "Proxy-Connection: close\r\n";
+static const char* _host = "Host: %s\r\n";
+static const char* _blank_line = "\r\n";
+
+/* functions */
+void deal(int client);
+void ignore_remaining_header(rio_t* rio);
 bool parse_URL(char* URL, char* host, char* filename, char* CGI_args, int* port_ptr);
 void serve_static(int fd, char* filename, int filesize);
 void serve_dynamic(int fd, char* filename, char* CGI_args);
 void get_filetype(char* filename, char* filetype);
+void build_http_header(char* http_header, char* host, char* filename, int port);
+
 
 #endif

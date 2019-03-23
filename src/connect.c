@@ -51,7 +51,7 @@ int open_listenfd(char* port)
             break;
         else if (close(listenfd) < 0)
         {
-            fprintf(stderr, "Can't close clientfd: %s\n", strerror(errno));
+            fprintf(stderr, "Can't close listenfd: %s\n", strerror(errno));
             return - 2;
         }
     }
@@ -62,7 +62,7 @@ int open_listenfd(char* port)
     else if (listen(listenfd, BACKLOG) < 0)
     {
         if (close(listenfd) < 0)
-            fprintf(stderr, "Can't close clientfd: %s\n", strerror(errno));
+            fprintf(stderr, "Can't close listenfd: %s\n", strerror(errno));
 
         return -2;
     }
@@ -71,25 +71,25 @@ int open_listenfd(char* port)
 }
 
 /*
- * EFFECTS: wrapper funtion for open_clientfd
+ * EFFECTS: wrapper funtion for open_serverfd
  *          add error handling
 */
 
-int Open_clientfd(char* hostname, char* port)
+int Open_serverfd(char* hostname, char* port)
 {
     int fd = open_clientfd(hostname, port);
     if (fd < 0)
-        unix_error("Open_clientfd error");
+        unix_error("Open_serverfd error");
 
     return fd;
 }
 
 /*
  * EFFECTS: open connection to server at <hostname, port> and
- *          return a socket for reading and writing
+ *          return a server file descriptor for client to read and write
  * ERRORS: -1 for getaddrinfo error; -2 for other errors
  */
-int open_clientfd(char* hostname, char* port)
+int open_serverfd(char* hostname, char* port)
 {
     struct addrinfo hints;
     struct addrinfo* list_ptr;
@@ -106,21 +106,21 @@ int open_clientfd(char* hostname, char* port)
         return -1;
     }
 
-    int clientfd = -1;
+    int serverfd = -1;
     struct addrinfo* p = NULL;
     for (p = list_ptr; p != NULL; p = p->ai_next)
     {
-        if ((clientfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0)
+        if ((serverfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0)
             continue;
-        else if (connect(clientfd, p->ai_addr, p->ai_addrlen) != -1)
+        else if (connect(serverfd, p->ai_addr, p->ai_addrlen) != -1)
             break;
-        else if (close(clientfd) < 0)
+        else if (close(serverfd) < 0)
         {
-            fprintf(stderr, "Can't close clientfd: %s\n", strerror(errno));
+            fprintf(stderr, "Can't close serverfd: %s\n", strerror(errno));
             return - 2;
         }
     }
 
     freeaddrinfo(list_ptr);
-    return (p == NULL) ? -2 : clientfd;
+    return (p == NULL) ? -2 : serverfd;
 }

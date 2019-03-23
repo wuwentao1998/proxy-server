@@ -8,7 +8,7 @@
 int Open_listenfd(char* port);
 int open_listenfd(char* port);
 
-int Open_clientfd(char* hostname, char* port);
-int open_clientfd(char* hostname, char* port);
+int Open_serverfd(char* hostname, char* port);
+int open_serverfd(char* hostname, char* port);
 
 #endif

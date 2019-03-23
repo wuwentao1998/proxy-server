@@ -12,7 +12,7 @@ void test_1()
     assert(is_static == true);
     assert(port == 80);
     assert(strcmp(host, "www.google.com") == 0);
-    assert(strcmp(filename, "./home.html") == 0);
+    assert(strcmp(filename, "./index.html") == 0);
 }
 
 void test_2()
@@ -26,7 +26,7 @@ void test_2()
     assert(is_static == true);
     assert(port == 1024);
     assert(strcmp(host, "www.google.com") == 0);
-    assert(strcmp(filename, "./home.html") == 0);
+    assert(strcmp(filename, "./index.html") == 0);
 }
 
 void test_3()
@@ -40,7 +40,7 @@ void test_3()
     assert(is_static == true);
     assert(port == 80);
     assert(strcmp(host, "www.google.com") == 0);
-    assert(strcmp(filename, "./home.html") == 0);
+    assert(strcmp(filename, "./index.html") == 0);
 
 }
 
@@ -55,7 +55,7 @@ void test_4()
     assert(is_static == true);
     assert(port == 1024);
     assert(strcmp(host, "www.google.com") == 0);
-    assert(strcmp(filename, "./home.html") == 0);
+    assert(strcmp(filename, "./index.html") == 0);
 
 }
 
@@ -70,7 +70,7 @@ void test_5()
     assert(is_static == true);
     assert(port == 1024);
     assert(strcmp(host, "www.google.com") == 0);
-    assert(strcmp(filename, "./home.html") == 0);
+    assert(strcmp(filename, "./index.html") == 0);
 
 }
 
@@ -85,7 +85,7 @@ void test_6()
     assert(is_static == true);
     assert(port == 1024);
     assert(strcmp(host, "www.google.com") == 0);
-    assert(strcmp(filename, "./home.html") == 0);
+    assert(strcmp(filename, "./index.html") == 0);
 
 }
 
@@ -100,7 +100,7 @@ void test_7()
     assert(is_static == true);
     assert(port == 80);
     assert(strcmp(host, "www.google.com") == 0);
-    assert(strcmp(filename, "./home.html") == 0);
+    assert(strcmp(filename, "./index.html") == 0);
 
 }
 
@@ -115,7 +115,7 @@ void test_8()
     assert(is_static == true);
     assert(port == 80);
     assert(strcmp(host, "www.google.com") == 0);
-    assert(strcmp(filename, "./home.html") == 0);
+    assert(strcmp(filename, "./index.html") == 0);
 
 }
 
