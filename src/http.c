@@ -134,56 +134,6 @@ bool parse_URL(char* URL, char* host, char* filename, char* CGI_args, int* port_
 }
 
 /*
- * EFFECTS: process and provide static content
- *          types of files that can be processed: text/html, text/plain, image/gif and image/png
-*/
-void serve_static(int fd, char* filename, int filesize)
-{
-    /* send response header */
-    char filetype[MAXLINE], buffer[MAXLINE];
-    get_filetype(filename, filetype);
-    sprintf(buffer, "HTTP/1.0 200 OK\r\n");
-    sprintf(buffer, "%sContent-length: %d \r\n", buffer, filesize);
-    sprintf(buffer, "%sContent-type: %s\r\n", buffer, filetype);
-    sprintf(buffer, "%s\r\n", buffer);
-    Rio_writen(fd, buffer, strlen(buffer));
-    printf("Response headers:\n");
-    printf("%s", buffer);
-
-    /* send response body */
-    int src_fd = Open(filename, O_RDONLY, 0);
-    char* src_ptr = Mmap(0, filesize, PROT_READ, MAP_PRIVATE, src_fd, 0);
-    Close(src_fd);
-    Rio_writen(fd, src_ptr, filesize);
-    Munmap(src_ptr, filesize);
-}
-
-/*
- * EFFECTS: process and provide static content
- *          fork a subprocess and run the CGI program
-*/
-void serve_dynamic(int fd, char* filename, char* CGI_args)
-{
-    char buffer[MAXLINE];
-
-    sprintf(buffer, "HTTP/1.0 200 OK\r\n");
-    sprintf(buffer, "%s\r\n", buffer);
-    Rio_writen(fd, buffer, strlen(buffer));
-
-    char* argv[] = {NULL};
-    /* child */
-    if (Fork() == 0)
-    {
-        setenv("QUERY_STRING", CGI_args, 1);
-        Dup2(fd, STDOUT_FILENO);
-        Execve(filename, argv, environ);
-    }
-
-    /* parent */
-    Wait(NULL);
-}
-
-/*
  * EFFECTS: derive file type from filename
 */
 void get_filetype(char* filename, char* filetype)

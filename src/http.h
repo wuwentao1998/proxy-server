@@ -17,8 +17,6 @@ static const char* _blank_line = "\r\n";
 void deal(int client);
 void ignore_remaining_header(rio_t* rio);
 bool parse_URL(char* URL, char* host, char* filename, char* CGI_args, int* port_ptr);
-void serve_static(int fd, char* filename, int filesize);
-void serve_dynamic(int fd, char* filename, char* CGI_args);
 void get_filetype(char* filename, char* filetype);
 void build_http_header(char* http_header, char* host, char* filename, int port);
 
