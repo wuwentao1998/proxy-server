@@ -8,6 +8,7 @@ TARGET = proxy
 SOURCE = connect.o error.o http.o proxy.o robust_IO.o wrapper.o
 
 all: $(TARGET)
+	@echo proxy successfully constructed
 
 $(TARGET): $(SOURCE)
 	$(CC) $(CFLAGS) -o $(TARGET) $(SOURCE)
