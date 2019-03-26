@@ -37,8 +37,8 @@ void deal(int clientfd)
     char port_string[PORT_LEN];
     sprintf(port_string, "%d", port);
     int end_serverfd = Open_serverfd(host, port_string);
-    Rio_writen(endserver_fd, http_header, strlen(http_header));
-    shutdown(endserver_fd, SHUT_WR);
+    Rio_writen(end_serverfd, http_header, strlen(http_header));
+    shutdown(end_serverfd, SHUT_WR);
 
     /* receive message from server, send it to client */
     char message[MAX_OBJECT_SIZE];
