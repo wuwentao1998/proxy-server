@@ -1,7 +1,9 @@
 # Makefile for Proxy
 
+# FIXME:header file dependency problem
+
 CC = gcc
-CFLAGS = -std==c11 -g -Wall -O2
+CFLAGS = -std=c11 -g -Wall
 # LDFLAGS = -lpthread
 
 TARGET = proxy
@@ -13,22 +15,22 @@ all: $(TARGET)
 $(TARGET): $(SOURCE)
 	$(CC) $(CFLAGS) -o $(TARGET) $(SOURCE)
 
-connect.o: connect.c macro.h error.h
+connect.o: connect.c macro.h error.h connect.h
 	$(CC) $(CFLAGS) -c connect.c
 
-error.o: error.c macro.h
+error.o: error.c macro.h error.h
 	$(CC) $(CFLAGS) -c error.c
 
-http.o: http.c wrapper.h robust_IO.h
+http.o: http.c wrapper.h robust_IO.h http.h
 	$(CC) $(CFLAGS) -c http.c
 
-proxy.o: proxy.c http.h connect.h
+proxy.o: proxy.c http.h connect.h proxy.h
 	$(CC) $(CFLAGS) -c proxy.c
 
-robust_IO.o: robust_IO.c macro.h error.h
+robust_IO.o: robust_IO.c macro.h error.h robust_IO.h
 	$(CC) $(CFLAGS) -c robust_IO.c
 
-wrapper.o: wrapper.c error.h
+wrapper.o: wrapper.c error.h wrapper.h
 	$(CC) $(CFLAGS) -c wrapper.c
 
 

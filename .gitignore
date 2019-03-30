@@ -2,3 +2,5 @@
 *.pdf
 proxylab-handout/
 test.c
+.vscode/
+proxy

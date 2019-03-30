@@ -37,7 +37,7 @@ int open_listenfd(char* port)
     }
 
     int listenfd = -1;
-    struct addroinfo* p = NULL;
+    struct addrinfo* p = NULL;
     for (p = list_ptr; p != NULL; p = p->ai_next)
     {
         if ((listenfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0)
@@ -77,7 +77,7 @@ int open_listenfd(char* port)
 
 int Open_serverfd(char* hostname, char* port)
 {
-    int fd = open_clientfd(hostname, port);
+    int fd = open_serverfd(hostname, port);
     if (fd < 0)
         unix_error("Open_serverfd error");
 

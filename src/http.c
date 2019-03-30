@@ -17,7 +17,7 @@ void deal(int clientfd)
     sscanf(buffer, "%s %s %s", method, URL, version);
     if (strcmp(method, "GET") != 0)
     {
-        client_error(clientfd, method, "501", "Not implemneted",
+        server_error(clientfd, method, "501", "Not implemented",
         "Sorry, this proxy can't implement this method");
         return;
     }
@@ -27,11 +27,11 @@ void deal(int clientfd)
     /* parse URL */
     char host[MAXLINE], filename[MAXLINE], CGI_args[MAXLINE];
     int port;
-    bool is_static = parse_URL(URL, host, filename, CGI_args, &port);
+    parse_URL(URL, host, filename, CGI_args, &port);
 
     /* build http header for end server */
     char http_header[MAXLINE];
-    build_http_header(http_header, host, filename, port);
+    build_http_header(http_header, host, filename);
 
     /* connect to end server and send request*/
     char port_string[PORT_LEN];
@@ -153,17 +153,45 @@ void get_filetype(char* filename, char* filetype)
 /*
  * EFFECTS: build the http header
 */
-void build_http_header(char* http_header, char* host, char* filename, int port)
+void build_http_header(char* http_header, char* host, char* filename)
 {
     /* request line */
-    sprintf(http_header, "GET %s HTTP/1.0\r\n", filename + 1); // filename以 . 开头，所以这里 +1
+    sprintf(http_header, _request_header_format, filename + 1); // filename以 . 开头，所以这里 +1
 
     /* remaining header */
+    char _host[MAXLINE];
+    sprintf(_host, _host_format, host);
     sprintf(http_header, "%s%s%s%s%s",
             _host,
             _connection,
             _proxy,
             _user_agent,
             _blank_line);
+}
+
+
+/*
+ * EFFECTS: Report server error to client
+*/
+void server_error(int fd, char* cause, char* error_num,
+                char* short_message, char* long_message)
+{
+    char buffer[MAXLINE], body[MAXLINE];
+
+    /* build the HTTP response body */
+    sprintf(body, "<html><title> Server Error</title>");
+    sprintf(body, "%s<body bgcolor=""ffffff"">\r\n", body);
+    sprintf(body, "%s%s: %s\r\n", body, error_num, short_message);
+    sprintf(body, "%s<p>%s: %s \r\n", body, long_message, cause);
+    sprintf(body, "%s<hr><em>The Proxy Server</em>\r\n", body);
+
+    /* print the HTTP response */
+    sprintf(buffer, "HTTP/1.0 %s %s\r\n", error_num, short_message);
+    Rio_writen(fd, buffer, strlen(buffer));
+    sprintf(buffer, "Content-type: text/html\r\n");
+    Rio_writen(fd, buffer, strlen(buffer));
+    sprintf(buffer, "Content-length: %ld\r\n\r\n", strlen(body));
+    Rio_writen(fd, buffer, strlen(buffer));
+    Rio_writen(fd, body, strlen(body));
 }
 
