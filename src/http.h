@@ -7,6 +7,8 @@
 #include "robust_IO.h"
 #include "connect.h"
 
+// FIXME: why does the gcc reports the following defined but not used
+
 /* http header string */
 static const char* _user_agent = "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:10.0.3) Gecko/20120305 Firefox/10.0.3\r\n";
 static const char* _connection = "Connection: close\r\n";

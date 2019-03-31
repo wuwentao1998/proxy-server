@@ -6,8 +6,9 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include "macro.h"
+#include <netdb.h>
 #include "error.h"
+#include "macro.h"
 
 int Open_listenfd(char* port);
 int open_listenfd(char* port);
