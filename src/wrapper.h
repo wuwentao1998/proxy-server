@@ -11,7 +11,7 @@
 #include "error.h"
 
 /* External variables */
-extern char **environ;
+// extern char **environ;
 
 /* Unix I/O wrappers */
 void Close(int fd);

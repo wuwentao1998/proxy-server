@@ -18,7 +18,7 @@ void Close(int fd)
 */
 int Open(const char* pathname, int flags, mode_t mode)
 {
-    int fd = Open(pathname, flags, mode);
+    int fd = open(pathname, flags, mode);
 
     if (fd < 0)
         unix_error("Open error");
@@ -98,7 +98,7 @@ void Getnameinfo(const struct sockaddr *sa, socklen_t salen, char *host,
 */
 pid_t Fork()
 {
-    pid_t pid = Fork();
+    pid_t pid = fork();
     if (pid < 0)
         unix_error("Fork_error");
 
@@ -121,7 +121,7 @@ void Execve(const char *filename, char *const argv[], char *const envp[])
 */
 pid_t Wait(int *status)
 {
-    pid_t pid = Wait(status);
+    pid_t pid = wait(status);
 
     if (pid < 0)
         unix_error("Wait error");

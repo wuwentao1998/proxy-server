@@ -7,14 +7,18 @@
 void deal(int clientfd)
 {
     /* read request line and headers */
-    char buffer[MAXLINE], method[MAXLINE], URL[MAXLINE], version[MAXLINE];
+    char buffer[MAXLINE];
+    char headline[MAXLINE], hostline[MAXLINE];
+    char method[MAXLINE], URI[MAXLINE], version[MAXLINE];
     rio_t client_rio;
 
     Rio_readinitb(&client_rio, clientfd);
-    Rio_readlineb(&client_rio, buffer, MAXLINE);
-    // printf("Request headers:\n");
-    // printf("%s", buffer);
-    sscanf(buffer, "%s %s %s", method, URL, version);
+    Rio_readlineb(&client_rio, headline, MAXLINE);
+    Rio_readlineb(&client_rio, hostline, MAXLINE);
+    ignore_remaining_header(&client_rio);
+
+    /* parse head line */
+    sscanf(headline, "%s %s %s", method, URI, version);
     if (strcmp(method, "GET") != 0)
     {
         server_error(clientfd, method, "501", "Not implemented",
@@ -22,16 +26,14 @@ void deal(int clientfd)
         return;
     }
 
-    ignore_remaining_header(&client_rio);
-
-    /* parse URL */
-    char host[MAXLINE], filename[MAXLINE], CGI_args[MAXLINE];
+    /* parse host line */
     int port;
-    parse_URL(URL, host, filename, CGI_args, &port);
+    char host[MAXLINE];
+    parse_host(hostline, host, &port);
 
     /* build http header for end server */
     char http_header[MAXLINE];
-    build_http_header(http_header, host, filename);
+    build_http_header(http_header, host, URI);
 
     /* connect to end server and send request*/
     char port_string[PORT_LEN];
@@ -39,7 +41,6 @@ void deal(int clientfd)
     int end_serverfd = Open_serverfd(host, port_string);
     Rio_writen(end_serverfd, http_header, strlen(http_header));
     shutdown(end_serverfd, SHUT_WR);
-
     /* receive message from server, send it to client */
     char message[MAX_OBJECT_SIZE];
     int message_size = 0;
@@ -72,96 +73,41 @@ void ignore_remaining_header(rio_t* rio)
 }
 
 /*
- * EFFECTS: parse the URI into a filename string and a CGI arguments string
- *          return 1 if it's static content, return 0 if it's dynamic content
- * REQUIRES: the default directory of static content is the current directory
- *           the default directory of dynamic content is ./CGI_bin
- *           the default filename is ./index.html
+ * EFFECTS: parse the hostline to get host and port
 */
-bool parse_URL(char* URL, char* host, char* filename, char* CGI_args, int* port_ptr)
+void parse_host(char* hostline, char* host, int* port_ptr)
 {
-    char* begin = URL;
-    if (strstr(URL, "http://") != NULL)
-        begin = strstr(URL, "http://") + strlen("http://");
+    int i = 0;
+    while (hostline[i] != ' ')
+        i++;
 
-    bool isHost = false;
-    if (strstr(begin, ":") != NULL)
+    hostline = hostline + i + 1;
+    char *index;
+    if ((index = strchr(hostline, ':')) == NULL)
     {
-        char* end = strstr(begin, ":");
-        *end = '\0';
-        strcpy(host, begin);
-        isHost = true;
-        end = end + 1;
-        sscanf(end, "%d", port_ptr);
-    }
-    else
         *port_ptr = 80;
-
-    if (strchr(begin, '/') == NULL)
-    {
-        strcpy(filename, "./index.html");
-        if (!isHost)
-            strcpy(host, begin);
-
-        return true;
-    }
-    else
-        URL = strchr(begin, '/');
-
-    if (!strstr(URL, "CGI_bin"))
-    {
-        strcpy(CGI_args, "");
-        strcpy(filename, ".");
-        strcat(filename, URL);
-        if (URL[strlen(URL) -  1] == '/')
-            strcat(filename, "index.html");
-
-        return true;
+        strcpy(host, hostline);
+        host[strlen(host) - 1] = '\0';
     }
     else
     {
-        char* ptr = strchr(URL, '?');
-        if (ptr != 0)
-        {
-            strcpy(CGI_args, ptr + 1);
-            *ptr = '\0';
-        }
-        else
-            strcpy(CGI_args, "");
-
-        strcpy(filename, ".");
-        strcat(filename, URL);
-        return false;
+        host[strlen(host) - 1] = '\0';
+        *port_ptr = atoi(index + 1);
+        *index = '\0';
+        strcpy(host, hostline);
     }
-}
-
-/*
- * EFFECTS: derive file type from filename
-*/
-void get_filetype(char* filename, char* filetype)
-{
-    if (strstr(filename, ".html"))
-        strcpy(filetype, "text/html");
-    else if (strstr(filename, ".gif"))
-        strcpy(filetype, "image/gif");
-    else if (strstr(filename, ".png"))
-        strcpy(filetype, "image/png");
-    else
-        strcpy(filetype, "text/plain");
 }
 
 /*
  * EFFECTS: build the http header
 */
-void build_http_header(char* http_header, char* host, char* filename)
+void build_http_header(char* http_header, char* host, char* URI)
 {
-    /* request line */
-    sprintf(http_header, _request_header_format, filename + 1); // filename以 . 开头，所以这里 +1
-
-    /* remaining header */
-    char _host[MAXLINE];
+    char  _header[MAXLINE], _host[MAXLINE];
+    sprintf(_header, _request_header_format, URI);
     sprintf(_host, _host_format, host);
-    sprintf(http_header, "%s%s%s%s%s",
+    sprintf(http_header, "%s%s%s%s%s%s",
+            _header,
             _host,
             _connection,
             _proxy,

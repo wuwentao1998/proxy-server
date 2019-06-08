@@ -1,4 +1,3 @@
-#include "connect.h"
 #include "http.h"
 
 typedef struct sockaddr SA;

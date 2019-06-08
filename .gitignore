@@ -4,3 +4,6 @@ proxylab-handout/
 test.c
 .vscode/
 proxy
+demo/
+*.o
+server
