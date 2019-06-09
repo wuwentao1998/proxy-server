@@ -21,8 +21,15 @@ make
 ./proxy [port]
 ```
 
-## Features
+## Unit Test
+If you want to do unit test for your new feature, just add new .c unit test file in the dirctory 'test' and run the following command.
 
+``` bash
+./run_test.sh
+```
+
+## Features
+- Automatic unit test
 
 
 ## License
