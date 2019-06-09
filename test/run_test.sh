@@ -12,7 +12,7 @@ rm -f proxy.o
 
 for file in $files
 do
-    if [ $file == "run_test.sh" ];then
+    if [ $file == "run_test.sh" -o -d $file ];then
         continue
     fi
 
