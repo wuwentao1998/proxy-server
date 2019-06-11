@@ -1,9 +1,2 @@
-*.exe
-*.pdf
-proxylab-handout/
-test.c
 .vscode/
-proxy
 *.o
-server
-test/input/
