@@ -14,8 +14,7 @@ void deal(int clientfd)
 
     Rio_readinitb(&client_rio, clientfd);
     Rio_readlineb(&client_rio, headline, MAXLINE);
-    Rio_readlineb(&client_rio, hostline, MAXLINE);
-    ignore_remaining_header(&client_rio);
+    get_host_line(&client_rio, hostline);
 
     /* parse head line */
     sscanf(headline, "%s %s %s", method, URI, version);
@@ -53,9 +52,14 @@ void deal(int clientfd)
         message_size += n;
         if(message_size < MAX_OBJECT_SIZE)
             strcat(message, buffer);
-
-        Rio_writen(clientfd , message, n);
+        else
+        {
+            Rio_writen(clientfd , message, message_size);
+            message_size = 0;
+            message[0] = '\0';
+        }
     }
+    Rio_writen(clientfd , message, message_size);
 
     Close(end_serverfd);
 }
@@ -141,3 +145,13 @@ void server_error(int fd, char* cause, char* error_num,
     Rio_writen(fd, body, strlen(body));
 }
 
+void get_host_line(rio_t *client_rio, char *hostline) {
+    char buffer[MAXLINE];
+    do {
+    Rio_readlineb(client_rio, buffer, MAXLINE);
+    } while (strstr(buffer, "Host") == NULL);
+
+    strcpy(hostline, buffer);
+
+    ignore_remaining_header(client_rio);
+}

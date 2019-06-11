@@ -23,5 +23,6 @@ void get_filetype(char* filename, char* filetype);
 void build_http_header(char* http_header, char* host, char* filename);
 void server_error(int fd, char* casue, char* error_num,
                 char* short_message, char* long_message);
+void get_host_line(rio_t *client_rio, char *hostline);
 
 #endif
