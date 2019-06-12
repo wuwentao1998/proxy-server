@@ -8,16 +8,17 @@ void deal(int clientfd)
 {
     /* read request line and headers */
     char buffer[MAXLINE];
-    char headline[MAXLINE], hostline[MAXLINE];
-    char method[MAXLINE], URI[MAXLINE], version[MAXLINE];
+    char headline[MAXLINE];
+    char method[MAXLINE], URL[MAXLINE], version[MAXLINE];
     rio_t client_rio;
 
     Rio_readinitb(&client_rio, clientfd);
     Rio_readlineb(&client_rio, headline, MAXLINE);
-    get_host_line(&client_rio, hostline);
+    ignore_remaining_header(&client_rio);
+
 
     /* parse head line */
-    sscanf(headline, "%s %s %s", method, URI, version);
+    sscanf(headline, "%s %s %s", method, URL, version);
     if (strcmp(method, "GET") != 0)
     {
         server_error(clientfd, method, "501", "Not implemented",
@@ -25,10 +26,9 @@ void deal(int clientfd)
         return;
     }
 
-    /* parse host line */
     int port;
-    char host[MAXLINE];
-    parse_host(hostline, host, &port);
+    char host[MAXLINE], URI[MAXLINE];
+    parse_URL(URL, URI, host, &port);
 
     /* build http header for end server */
     char http_header[MAXLINE];
@@ -77,28 +77,45 @@ void ignore_remaining_header(rio_t* rio)
 }
 
 /*
- * EFFECTS: parse the hostline to get host and port
+ * EFFECTS: parse the URL to get URI, host and port
 */
-void parse_host(char* hostline, char* host, int* port_ptr)
+void parse_URL(char* URL, char* URI, char* host, int* port_ptr)
 {
-    int i = 0;
-    while (hostline[i] != ' ')
-        i++;
+    //如果存在协议前缀，则去掉
+    if (strstr(URL, "http://") != NULL)
+        URL = URL + 7;
+    else if (strstr(URL, "https://") != NULL)
+        URL = URL + 8;
 
-    hostline = hostline + i + 1;
-    char *index;
-    if ((index = strchr(hostline, ':')) == NULL)
+    if (strchr(URL, ':') == NULL)
     {
+        char* URI_begin = strchr(URL, '/');
+        if (URI_begin == NULL)
+            strcpy(URI, "/");
+        else
+        {
+            strcpy(URI, URI_begin);
+            *URI_begin = '\0';
+        }
+
+        strcpy(host, URL);
         *port_ptr = 80;
-        strcpy(host, hostline);
-        host[strlen(host) - 1] = '\0';
     }
     else
     {
-        host[strlen(host) - 1] = '\0';
-        *port_ptr = atoi(index + 1);
-        *index = '\0';
-        strcpy(host, hostline);
+        char* host_end = strchr(URL, ':');
+        char* URI_begin = strchr(URL, '/');
+        if (URI_begin == NULL)
+            strcpy(URI, "/");
+        else
+        {
+            strcpy(URI, URI_begin);
+            *URI_begin = '\0';
+        }
+
+        *host_end = '\0';
+        strcpy(host, URL);
+        *port_ptr = atoi(host_end + 1);
     }
 }
 
@@ -145,13 +162,3 @@ void server_error(int fd, char* cause, char* error_num,
     Rio_writen(fd, body, strlen(body));
 }
 
-void get_host_line(rio_t *client_rio, char *hostline) {
-    char buffer[MAXLINE];
-    do {
-    Rio_readlineb(client_rio, buffer, MAXLINE);
-    } while (strstr(buffer, "Host") == NULL);
-
-    strcpy(hostline, buffer);
-
-    ignore_remaining_header(client_rio);
-}
