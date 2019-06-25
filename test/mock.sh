@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "=====starting mock test====="
+
 CUR_DIR=$(cd $(dirname $0); pwd)
 
 nohup python3 -m http.server 8080 &

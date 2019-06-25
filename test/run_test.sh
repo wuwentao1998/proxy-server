@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "=====starting unit test====="
+
+
 CUR_DIR=$(cd $(dirname $0); pwd)
 
 cd ${CUR_DIR}/../src
