@@ -1,9 +1,11 @@
 #ifndef ROBUST_IO_H
 #define ROBUST_IO_H
 
-#include <unistd.h>
 #include "macro.h"
 #include "error.h"
+#include "wrapper.h"
+#include <unistd.h>
+
 
 // 内置的缓冲区保证了线程安全
 typedef struct {

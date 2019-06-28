@@ -1,11 +1,14 @@
 #ifndef HTTP_H
 #define HTTP_H
-#include <stdbool.h>
-#include<sys/stat.h>
 
 #include "wrapper.h"
 #include "robust_IO.h"
+#include "macro.h"
+#include "error.h"
 #include "connect.h"
+#include <stdbool.h>
+#include<sys/stat.h>
+
 
 /* http header string */
 static const char* _user_agent = "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:10.0.3) Gecko/20120305 Firefox/10.0.3\r\n";

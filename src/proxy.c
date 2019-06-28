@@ -1,6 +1,9 @@
+#include "macro.h"
+#include "connect.h"
 #include "http.h"
-
-typedef struct sockaddr SA;
+#include "wrapper.h"
+#include <stdio.h>
+#include <sys/socket.h>
 
 int main(int argc, char** argv)
 {

@@ -8,4 +8,6 @@
 #define MAX_OBJECT_SIZE 102400
 #define PORT_LEN 10
 
+typedef struct sockaddr SA;
+
 #endif
