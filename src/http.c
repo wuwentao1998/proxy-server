@@ -1,4 +1,11 @@
 #include "http.h"
+#include "connect.h"
+#include "error.h"
+#include "wrapper.h"
+#include <stdio.h>
+#include<sys/stat.h>
+#include <string.h>
+#include <stdlib.h>
 
 /*
  * EFFECTS: transfer request from client to end server

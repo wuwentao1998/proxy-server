@@ -1,4 +1,8 @@
 #include "wrapper.h"
+#include "error.h"
+#include <fcntl.h>
+#include<unistd.h>
+#include <sys/mman.h>
 
 /*
  * EFFECTS: wrapper funtion for close

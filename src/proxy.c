@@ -4,6 +4,9 @@
 #include "wrapper.h"
 #include <stdio.h>
 #include <sys/socket.h>
+#include <stdbool.h>
+#include <stdlib.h>
+
 
 int main(int argc, char** argv)
 {
