@@ -1,5 +1,6 @@
 #include "../src/http.h"
 #include <assert.h>
+#include <string.h>
 
 void test_1()
 {
@@ -85,6 +86,43 @@ void test_6()
     assert(strcmp(URI, "/") == 0);
 }
 
+void test_7()
+{
+    char host[MAXLINE];
+    char URI[MAXLINE];
+    int port;
+
+    char URL[MAXLINE] = "www.baidu.com/";
+    parse_URL(URL, URI, host, &port);
+
+    assert(port == 80);
+    assert(strcmp(host, "www.baidu.com") == 0);
+    assert(strcmp(URI, "/") == 0);
+}
+
+void test_8()
+{
+    char host[MAXLINE];
+    char URI[MAXLINE];
+    int port;
+
+    char URL[MAXLINE] = "ftp://www.baidu.com/";
+    int err = parse_URL(URL, URI, host, &port);
+
+    assert(err != 0);
+}
+
+void test_9()
+{
+    char host[MAXLINE];
+    char URI[MAXLINE];
+    int port;
+
+    char URL[MAXLINE] = "http://www.baidu.com:/";
+    int err = parse_URL(URL, URI, host, &port);
+
+    assert(err != 0);
+}
 
 int main(void)
 {
@@ -94,4 +132,7 @@ int main(void)
     test_4();
     test_5();
     test_6();
+    test_7();
+    test_8();
+    test_9();
 }

@@ -1,6 +1,7 @@
+#include "../src/robust_IO.h"
 #include <assert.h>
 #include <fcntl.h>
-#include "../src/robust_IO.h"
+#include <string.h>
 
 void test_1()
 {

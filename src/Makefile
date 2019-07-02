@@ -32,6 +32,6 @@ wrapper.o: wrapper.c wrapper.h macro.h error.h
 	$(CC) $(CFLAGS) -c wrapper.c
 
 clean:
-	-rm -f $(TARGET) $(SOURCE)
+	-rm -f $(SOURCE)
 
 .PHONY: all clean

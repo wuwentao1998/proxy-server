@@ -28,13 +28,17 @@ void deal(int clientfd)
     if (strcmp(method, "GET") != 0)
     {
         server_error(clientfd, method, "501", "Not implemented",
-        "Sorry, this proxy can't implement this method");
+        "Sorry, this proxy can't implement this method.");
         return;
     }
 
     int port;
     char host[MAXLINE], URI[MAXLINE];
-    parse_URL(URL, URI, host, &port);
+    if (parse_URL(URL, URI, host, &port) != 0) {
+        server_error(clientfd, method, "400", "invalid url",
+                "Sorry, this url is invalid.");
+        return;
+    }
 
     /* build http header for end server */
     char http_header[MAXLINE];
@@ -85,45 +89,59 @@ void ignore_remaining_header(rio_t* rio)
 
 /*
  * EFFECTS: parse the URL to get URI, host and port
+ * ERRORS: -1 for incorrect url
 */
-void parse_URL(char* URL, char* URI, char* host, int* port_ptr)
+int parse_URL(char* URL, char* URI, char* host, int* port_ptr)
 {
-    //如果存在协议前缀，则去掉
+    // handle protocol prefix
     if (strstr(URL, "http://") != NULL)
         URL = URL + 7;
     else if (strstr(URL, "https://") != NULL)
         URL = URL + 8;
+    else if (strstr(URL, "://") != NULL)
+        return -1;
 
     if (strchr(URL, ':') == NULL)
     {
-        char* URI_begin = strchr(URL, '/');
-        if (URI_begin == NULL)
+        char* url_begin = strchr(URL, '/');
+        if (url_begin == NULL)
             strcpy(URI, "/");
         else
         {
-            strcpy(URI, URI_begin);
-            *URI_begin = '\0';
+            strcpy(URI, url_begin);
+            *url_begin = '\0';
         }
 
         strcpy(host, URL);
+        if (strlen(host) == 0)
+            return -1;
+
         *port_ptr = 80;
     }
     else
     {
         char* host_end = strchr(URL, ':');
-        char* URI_begin = strchr(URL, '/');
-        if (URI_begin == NULL)
+        char* url_begin = strchr(URL, '/');
+        if (host_end >= url_begin - 1)
+            return -1;
+
+        if (url_begin == NULL)
             strcpy(URI, "/");
         else
         {
-            strcpy(URI, URI_begin);
-            *URI_begin = '\0';
+            strcpy(URI, url_begin);
+            *url_begin = '\0';
         }
 
         *host_end = '\0';
         strcpy(host, URL);
+        if (strlen(host) == 0)
+            return -1;
+
         *port_ptr = atoi(host_end + 1);
     }
+
+    return 0;
 }
 
 /*
