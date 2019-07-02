@@ -1,7 +1,11 @@
 #!/bin/bash
 
+VERSION=v0.2
+PORT=8000
+NAME=proxy
+
 # build
-docker build -t="proxy-server:v0.2"
+docker build -t="${NAME}:${VERSION}" .
 # run
-docker run -itd --name proxy -p 8000:8000 proxy-server:v0.2 bash -c "./proxy 8000&"
+docker run -itd --name ${NAME} -p ${PORT}:${PORT} ${NAME}:${VERSION} bash -c "./${NAME} ${PORT}&"
 
