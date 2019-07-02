@@ -23,7 +23,6 @@ void deal(int clientfd)
     Rio_readlineb(&client_rio, headline, MAXLINE);
     ignore_remaining_header(&client_rio);
 
-
     /* parse head line */
     sscanf(headline, "%s %s %s", method, URL, version);
     if (strcmp(method, "GET") != 0)
@@ -47,6 +46,7 @@ void deal(int clientfd)
     int end_serverfd = Open_serverfd(host, port_string);
     Rio_writen(end_serverfd, http_header, strlen(http_header));
     shutdown(end_serverfd, SHUT_WR);
+
     /* receive message from server, send it to client */
     char message[MAX_OBJECT_SIZE];
     int message_size = 0;

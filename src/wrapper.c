@@ -1,8 +1,11 @@
 #include "wrapper.h"
 #include "error.h"
 #include <fcntl.h>
-#include<unistd.h>
+#include <unistd.h>
 #include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <netdb.h>
 
 /*
  * EFFECTS: wrapper funtion for close
