@@ -1,6 +1,7 @@
 #include "connect.h"
 #include "error.h"
 #include "macro.h"
+#include "log.h"
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
@@ -41,8 +42,10 @@ int open_listenfd(char* port)
     int error_code = getaddrinfo(NULL, port, &hints, &list_ptr);
     if (error_code != 0)
     {
-        fprintf(stderr, "Getaddrinfo failed (with port number: %s) : %s\n",
+        char log_string[MAXLINE];
+        sprintf(log_string, "Getaddrinfo failed (with port number: %s) : %s\n",
          port, gai_strerror(error_code));
+        Log(Error, log_string);
         return -1;
     }
 
@@ -61,7 +64,9 @@ int open_listenfd(char* port)
             break;
         else if (close(listenfd) < 0)
         {
-            fprintf(stderr, "Can't close listenfd: %s\n", strerror(errno));
+            char log_string[MAXLINE];
+            sprintf(log_string, "Can't close listenfd: %s\n", strerror(errno));
+            Log(Error, log_string);
             return - 2;
         }
     }
@@ -72,7 +77,11 @@ int open_listenfd(char* port)
     else if (listen(listenfd, BACKLOG) < 0)
     {
         if (close(listenfd) < 0)
-            fprintf(stderr, "Can't close listenfd: %s\n", strerror(errno));
+        {
+            char log_string[MAXLINE];
+            sprintf(log_string, "Can't close listenfd: %s\n", strerror(errno));
+            Log(Error, log_string);
+        }
 
         return -2;
     }
@@ -111,8 +120,10 @@ int open_serverfd(char* hostname, char* port)
     int error_code = getaddrinfo(hostname, port, &hints, &list_ptr);
     if (error_code != 0)
     {
-        fprintf(stderr, "Getaddrinfo failed (with hostname: %s, port number: %s) : %s\n",
-         hostname, port, gai_strerror(error_code));
+        char log_string[MAXLINE];
+        sprintf(log_string, "Getaddrinfo failed (with hostname: %s, port number: %s) : %s\n",
+                hostname, port, gai_strerror(error_code));
+        Log(Error, log_string);
         return -1;
     }
 
@@ -126,7 +137,9 @@ int open_serverfd(char* hostname, char* port)
             break;
         else if (close(serverfd) < 0)
         {
-            fprintf(stderr, "Can't close serverfd: %s\n", strerror(errno));
+            char log_string[MAXLINE];
+            sprintf(log_string, "Can't close serverfd: %s\n", strerror(errno));
+            Log(Error, log_string);
             return - 2;
         }
     }

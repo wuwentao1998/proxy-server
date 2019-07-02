@@ -16,7 +16,7 @@ void deal(int clientfd)
     /* read request line and headers */
     char buffer[MAXLINE];
     char headline[MAXLINE];
-    char method[MAXLINE], URL[MAXLINE], version[MAXLINE];
+    char method[MAXWORD], URL[MAXWORD], version[MAXWORD];
     rio_t client_rio;
 
     Rio_readinitb(&client_rio, clientfd);
@@ -33,7 +33,7 @@ void deal(int clientfd)
     }
 
     int port;
-    char host[MAXLINE], URI[MAXLINE];
+    char host[MAXWORD], URI[MAXWORD];
     if (parse_URL(URL, URI, host, &port) != 0) {
         server_error(clientfd, method, "400", "invalid url",
                 "Sorry, this url is invalid.");
@@ -149,7 +149,7 @@ int parse_URL(char* URL, char* URI, char* host, int* port_ptr)
 */
 void build_http_header(char* http_header, char* host, char* URI)
 {
-    char  _header[MAXLINE], _host[MAXLINE];
+    char  _header[MAXLINE], _host[MAXWORD];
     sprintf(_header, _request_header_format, URI);
     sprintf(_host, _host_format, host);
     sprintf(http_header, "%s%s%s%s%s%s",

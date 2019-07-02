@@ -1,5 +1,6 @@
 #include "error.h"
 #include "macro.h"
+#include "log.h"
 #include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -10,7 +11,9 @@
 */
 void unix_error(char* message)
 {
-    fprintf(stderr, "%s: %s\n", message, strerror(errno));
+    char log_string[MAXLINE];
+    sprintf(log_string,  "%s: %s\n", message, strerror(errno));
+    Log(Error, log_string);
     exit(1);
 }
 
@@ -19,7 +22,9 @@ void unix_error(char* message)
 */
 void gai_error(int code, char *message)
 {
-    fprintf(stderr, "%s: %s\n", message, gai_strerror(code));
+    char log_string[MAXLINE];
+    sprintf(log_string,  "%s: %s\n", message, gai_strerror(code));
+    Log(Error, log_string);
     exit(1);
 }
 

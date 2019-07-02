@@ -5,7 +5,7 @@ CFLAGS = -g -Wall -std=c11
 # LDFLAGS = -lpthread
 
 TARGET = proxy
-SOURCE = error.o http.o proxy.o robust_IO.o wrapper.o connect.o
+SOURCE = error.o http.o proxy.o robust_IO.o wrapper.o connect.o log.o
 
 all: $(TARGET)
 	@echo =====proxy successfully constructed=====
@@ -30,6 +30,9 @@ robust_IO.o: robust_IO.c robust_IO.h macro.h wrapper.h error.h
 
 wrapper.o: wrapper.c wrapper.h macro.h error.h
 	$(CC) $(CFLAGS) -c wrapper.c
+
+log.o: log.c log.h macro.h
+    $(CC) $(CFLAGS) -c log.c
 
 clean:
 	-rm -f $(SOURCE)
