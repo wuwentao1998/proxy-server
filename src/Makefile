@@ -32,7 +32,7 @@ wrapper.o: wrapper.c wrapper.h macro.h error.h
 	$(CC) $(CFLAGS) -c wrapper.c
 
 log.o: log.c log.h macro.h
-    $(CC) $(CFLAGS) -c log.c
+	$(CC) $(CFLAGS) -c log.c
 
 clean:
 	-rm -f $(SOURCE)
