@@ -1,5 +1,8 @@
 #include "robust_IO.h"
-
+#include "error.h"
+#include "wrapper.h"
+#include <errno.h>
+#include <string.h>
 
 /*
  * EFFECTS: wrapper funtion for rio_readn

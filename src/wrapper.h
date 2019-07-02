@@ -1,14 +1,7 @@
 #ifndef WRAPPER_H
 #define WRAPPER_H
 
-#include <sys/types.h>
 #include <sys/socket.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
-#include <fcntl.h>
-#include<unistd.h>
-#include<stdlib.h>
-#include "error.h"
 
 /* External variables */
 // extern char **environ;

@@ -1,11 +1,8 @@
 #ifndef HTTP_H
 #define HTTP_H
-#include <stdbool.h>
-#include<sys/stat.h>
 
-#include "wrapper.h"
 #include "robust_IO.h"
-#include "connect.h"
+#include "macro.h"
 
 /* http header string */
 static const char* _user_agent = "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:10.0.3) Gecko/20120305 Firefox/10.0.3\r\n";
@@ -18,7 +15,7 @@ static const char* _blank_line = "\r\n";
 /* functions */
 void deal(int client);
 void ignore_remaining_header(rio_t* rio);
-void parse_URL(char* URL, char* URI, char* host, int* port_ptr);
+int parse_URL(char* URL, char* URI, char* host, int* port_ptr);
 void build_http_header(char* http_header, char* host, char* filename);
 void server_error(int fd, char* casue, char* error_num,
                 char* short_message, char* long_message);

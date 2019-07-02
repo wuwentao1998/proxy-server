@@ -1,4 +1,11 @@
 #include "http.h"
+#include "connect.h"
+#include "error.h"
+#include "wrapper.h"
+#include <stdio.h>
+#include<sys/stat.h>
+#include <string.h>
+#include <stdlib.h>
 
 /*
  * EFFECTS: transfer request from client to end server
@@ -9,26 +16,29 @@ void deal(int clientfd)
     /* read request line and headers */
     char buffer[MAXLINE];
     char headline[MAXLINE];
-    char method[MAXLINE], URL[MAXLINE], version[MAXLINE];
+    char method[MAXWORD], URL[MAXWORD], version[MAXWORD];
     rio_t client_rio;
 
     Rio_readinitb(&client_rio, clientfd);
     Rio_readlineb(&client_rio, headline, MAXLINE);
     ignore_remaining_header(&client_rio);
 
-
     /* parse head line */
     sscanf(headline, "%s %s %s", method, URL, version);
     if (strcmp(method, "GET") != 0)
     {
         server_error(clientfd, method, "501", "Not implemented",
-        "Sorry, this proxy can't implement this method");
+        "Sorry, this proxy can't implement this method.");
         return;
     }
 
     int port;
-    char host[MAXLINE], URI[MAXLINE];
-    parse_URL(URL, URI, host, &port);
+    char host[MAXWORD], URI[MAXWORD];
+    if (parse_URL(URL, URI, host, &port) != 0) {
+        server_error(clientfd, method, "400", "invalid url",
+                "Sorry, this url is invalid.");
+        return;
+    }
 
     /* build http header for end server */
     char http_header[MAXLINE];
@@ -40,6 +50,7 @@ void deal(int clientfd)
     int end_serverfd = Open_serverfd(host, port_string);
     Rio_writen(end_serverfd, http_header, strlen(http_header));
     shutdown(end_serverfd, SHUT_WR);
+
     /* receive message from server, send it to client */
     char message[MAX_OBJECT_SIZE];
     int message_size = 0;
@@ -78,45 +89,59 @@ void ignore_remaining_header(rio_t* rio)
 
 /*
  * EFFECTS: parse the URL to get URI, host and port
+ * ERRORS: -1 for incorrect url
 */
-void parse_URL(char* URL, char* URI, char* host, int* port_ptr)
+int parse_URL(char* URL, char* URI, char* host, int* port_ptr)
 {
-    //如果存在协议前缀，则去掉
+    // handle protocol prefix
     if (strstr(URL, "http://") != NULL)
         URL = URL + 7;
     else if (strstr(URL, "https://") != NULL)
         URL = URL + 8;
+    else if (strstr(URL, "://") != NULL)
+        return -1;
 
     if (strchr(URL, ':') == NULL)
     {
-        char* URI_begin = strchr(URL, '/');
-        if (URI_begin == NULL)
+        char* url_begin = strchr(URL, '/');
+        if (url_begin == NULL)
             strcpy(URI, "/");
         else
         {
-            strcpy(URI, URI_begin);
-            *URI_begin = '\0';
+            strcpy(URI, url_begin);
+            *url_begin = '\0';
         }
 
         strcpy(host, URL);
+        if (strlen(host) == 0)
+            return -1;
+
         *port_ptr = 80;
     }
     else
     {
         char* host_end = strchr(URL, ':');
-        char* URI_begin = strchr(URL, '/');
-        if (URI_begin == NULL)
+        char* url_begin = strchr(URL, '/');
+        if (host_end >= url_begin - 1)
+            return -1;
+
+        if (url_begin == NULL)
             strcpy(URI, "/");
         else
         {
-            strcpy(URI, URI_begin);
-            *URI_begin = '\0';
+            strcpy(URI, url_begin);
+            *url_begin = '\0';
         }
 
         *host_end = '\0';
         strcpy(host, URL);
+        if (strlen(host) == 0)
+            return -1;
+
         *port_ptr = atoi(host_end + 1);
     }
+
+    return 0;
 }
 
 /*
@@ -124,7 +149,7 @@ void parse_URL(char* URL, char* URI, char* host, int* port_ptr)
 */
 void build_http_header(char* http_header, char* host, char* URI)
 {
-    char  _header[MAXLINE], _host[MAXLINE];
+    char  _header[MAXLINE], _host[MAXWORD];
     sprintf(_header, _request_header_format, URI);
     sprintf(_host, _host_format, host);
     sprintf(http_header, "%s%s%s%s%s%s",
