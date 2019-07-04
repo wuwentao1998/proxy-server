@@ -1,7 +1,7 @@
 # Makefile for Proxy
 
 CC = gcc
-CFLAGS = -g -Wall -std=c11
+CFLAGS = -std=gnu99
 # LDFLAGS = -lpthread
 
 TARGET = proxy
