@@ -12,7 +12,7 @@
 void unix_error(char* message)
 {
     char log_string[MAXLINE];
-    sprintf(log_string,  "%s: %s\n", message, strerror(errno));
+    sprintf(log_string,  "%s: %s", message, strerror(errno));
     Log(Error, log_string);
     exit(1);
 }
@@ -23,7 +23,7 @@ void unix_error(char* message)
 void gai_error(int code, char *message)
 {
     char log_string[MAXLINE];
-    sprintf(log_string,  "%s: %s\n", message, gai_strerror(code));
+    sprintf(log_string,  "%s: %s", message, gai_strerror(code));
     Log(Error, log_string);
     exit(1);
 }

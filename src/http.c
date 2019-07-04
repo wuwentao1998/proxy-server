@@ -1,6 +1,7 @@
 #include "http.h"
 #include "connect.h"
 #include "error.h"
+#include "log.h"
 #include "wrapper.h"
 #include <stdio.h>
 #include<sys/stat.h>
@@ -44,10 +45,15 @@ void deal(int clientfd)
     char http_header[MAXLINE];
     build_http_header(http_header, host, URI);
 
+    Log(Debug, http_header);
+
     /* connect to end server and send request*/
     char port_string[PORT_LEN];
     sprintf(port_string, "%d", port);
     int end_serverfd = Open_serverfd(host, port_string);
+    if (end_serverfd < 0)
+        return;
+
     Rio_writen(end_serverfd, http_header, strlen(http_header));
     shutdown(end_serverfd, SHUT_WR);
 

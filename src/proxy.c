@@ -28,15 +28,19 @@ int main(int argc, char** argv)
         struct sockaddr_storage clientaddr; // 该结构体可以容纳任何大小的套接字，以保持协议无关(socckaddr无法容纳IPv6)
 		socklen_t clientlen = sizeof(clientaddr);
 		int clientfd = Accept(listenfd, (SA*)&clientaddr, &clientlen);
+        if (clientfd < 0)
+            continue;
 
 		char hostname[MAXWORD], port[MAXWORD];
 		Getnameinfo((SA*)&clientaddr, clientlen, hostname, MAXWORD, port, MAXWORD, 0);
 
         char log_string[MAXLINE];
-        sprintf(log_string, "Acecepted connection from <%s, %s>\n", hostname, port);
+        sprintf(log_string, "Acecepted connection from <%s, %s>", hostname, port);
 		Log(Info, log_string);
 
+        // handle the request
 		deal(clientfd);
+
 		Close(clientfd);
 	}
 
