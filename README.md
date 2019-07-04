@@ -12,7 +12,7 @@ This repository contains a proxy server, which can transmit GET request. This pr
 ## Usage
 - with docker
 ``` bash
-./run.sh
+./run.sh [port]
 ```
 - without docker
 ``` bash
