@@ -7,18 +7,19 @@ This repository contains a proxy server, which can transmit GET request. This pr
 
 - Compiler: gcc 7.3.0
 
-## Build
-``` bash
-cd ./src
-
-make clean
-
-make
-```
+- Docker: 18.09.2
 
 ## Usage
+- with docker
 ``` bash
-./proxy [port]
+./run.sh [port]
+```
+- without docker
+``` bash
+cd ./src
+make
+make clean
+./proxy [port]&
 ```
 
 ## Unit Test
@@ -29,6 +30,8 @@ If you want to do unit test for your new feature, just add new .c unit test file
 ```
 
 ## Features
+- Start with one click using docker
+- Support formatted log
 - Automatic unit test
 
 

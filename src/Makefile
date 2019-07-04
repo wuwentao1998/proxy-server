@@ -1,7 +1,7 @@
 # Makefile for Proxy
 
 CC = gcc
-CFLAGS = -g -Wall -std=c11
+CFLAGS = -std=gnu99
 # LDFLAGS = -lpthread
 
 TARGET = proxy
@@ -32,7 +32,7 @@ wrapper.o: wrapper.c wrapper.h macro.h error.h
 	$(CC) $(CFLAGS) -c wrapper.c
 
 log.o: log.c log.h macro.h
-    $(CC) $(CFLAGS) -c log.c
+	$(CC) $(CFLAGS) -c log.c
 
 clean:
 	-rm -f $(SOURCE)
