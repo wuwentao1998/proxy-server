@@ -10,6 +10,7 @@
 #define PORT_LEN 10
 
 typedef struct sockaddr SA;
+typedef void (*handler_t)(int);
 
 enum LOG_TYPE
 {

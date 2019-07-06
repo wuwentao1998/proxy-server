@@ -3,10 +3,13 @@
 #include "http.h"
 #include "wrapper.h"
 #include "log.h"
+#include "sig.h"
 #include <stdio.h>
 #include <sys/socket.h>
 #include <stdbool.h>
 #include <stdlib.h>
+
+// #define DEBUG
 
 int main(int argc, char** argv)
 {
@@ -18,6 +21,9 @@ int main(int argc, char** argv)
 	    fprintf(stdout, "usage: %s <port number to bind and listen>\n", argv[0]);
 		exit(1);
 	}
+
+    // handle signals
+    handle_signals();
 
     int listenfd = Open_listenfd(argv[1]);
     if (listenfd < 0)
@@ -38,9 +44,24 @@ int main(int argc, char** argv)
         sprintf(log_string, "Acecepted connection from <%s, %s>", hostname, port);
 		Log(Info, log_string);
 
-        // handle the request
-		deal(clientfd);
+        int pid = Fork();
+        if (pid < 0)
+            exit(1);
+        else if (pid == 0)
+        {
+            Close(listenfd);
+            // handle the request
+            deal(clientfd);
+            Close(clientfd);
+            exit(0);
+        }
 
+#ifdef DEBUG
+        sprintf(log_string, "Process %d starts.", pid);
+        Log(Debug, log_string);
+#endif
+
+        // Parent should also close clientfd!
 		Close(clientfd);
 	}
 

@@ -1,6 +1,7 @@
 #ifndef WRAPPER_H
 #define WRAPPER_H
 
+#include "macro.h"
 #include <sys/socket.h>
 
 /* External variables */
@@ -27,5 +28,7 @@ pid_t Fork();
 void Execve(const char *filename, char *const argv[], char *const envp[]);
 pid_t Wait(int *status);
 
+/* Signal wrappers */
+void Signal(int signum, handler_t handler);
 
 #endif

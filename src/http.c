@@ -8,6 +8,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+// #define DEBUG
+
 /*
  * EFFECTS: transfer request from client to end server
  *          then receive message from end server and transfer to client
@@ -45,7 +47,9 @@ void deal(int clientfd)
     char http_header[MAXLINE];
     build_http_header(http_header, host, URI);
 
+#ifdef DEBUG
     Log(Debug, http_header);
+#endif
 
     /* connect to end server and send request*/
     char port_string[PORT_LEN];

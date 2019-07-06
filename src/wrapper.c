@@ -6,6 +6,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <netdb.h>
+#include <signal.h>
+#include <stdlib.h>
 
 /*
  * EFFECTS: wrapper funtion for close
@@ -135,3 +137,15 @@ pid_t Wait(int *status)
 
     return pid;
 }
+
+/*
+ * EFFECTS: wrapper funtion for signal
+ * Errors: exit the program when encountering error
+*/
+void Signal(int signum, handler_t handler)
+{
+    handler_t error = signal(signum, handler);
+    if (error == SIG_ERR)
+        fatal_error("Signal error");
+}
+
