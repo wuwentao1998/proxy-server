@@ -9,7 +9,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-// #define DEBUG
+#define DEBUG
 
 int main(int argc, char** argv)
 {
@@ -45,8 +45,10 @@ int main(int argc, char** argv)
 		Log(Info, log_string);
 
         int pid = Fork();
-        if (pid < 0)
-            exit(1);
+        if (pid < 0){
+            Close(clientfd);
+            continue;
+        }
         else if (pid == 0)
         {
             Close(listenfd);
