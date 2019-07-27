@@ -67,5 +67,4 @@ int main(int argc, char** argv)
 		Close(clientfd);
 	}
 
-	return 0;
 }

@@ -12,15 +12,15 @@ make
 make clean
 ./proxy 8000&
 
-# 开始mock测试，同时10个客户端请求服务器
 curl "127.0.0.1:8080" > a.out
 
-for ((i=0; i < 10; i++))
-do
-    curl -x 127.0.0.1:8000 "127.0.0.1:8080" > ${i}.out
-done
+# 开始mock测试，同时20个客户端请求服务器
 
-for ((i=0; i < 10; i++))
+# 如果是Linux系统，请使用client_linux代替client_mac
+cp ../client/client_mac .
+./client_mac --num=20 --proxy="127.0.0.1:8000" --url="127.0.0.1:8080"
+
+for ((i=0; i < 20; i++))
 do
     diff a.out ${i}.out > b.out
 
@@ -35,7 +35,7 @@ done
 # 收尾工作
 echo "=====mock test done====="
 
-rm -f proxy *.out
+rm -f proxy client_mac *.out
 cd ${CUR_DIR}
 rm -f nohup.out
 ps aux | grep "python3 -m http.server 8080" | grep -v "grep" | awk '{print $2}' | xargs kill -9
