@@ -4,10 +4,12 @@
 #include <sys/types.h>
 #include <time.h>
 #include <string.h>
+#include <sys/mman.h>
+#include <pthread.h>
 
-char* DirName = "../log";
-char* FileName = "../log/proxy.log";
-
+static char* DirName = "../log";
+static char* FileName = "../log/proxy.log";
+static pthread_mutex_t* mutex;
 static FILE* FP;
 
 /*
@@ -25,8 +27,25 @@ int initLog()
         return -1;
     }
 
+    initMutex();
     return 0;
 }
+
+/*
+ * EFFECTS: init mutex in a shared memory
+ * Assign values to static global variables mutex
+ * ERRORS: -1 for init error
+ */
+void initMutex()
+{
+    mutex = (pthread_mutex_t*) mmap(NULL, sizeof(pthread_mutex_t),
+                                     PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANON, -1, 0);
+    pthread_mutexattr_t attr;
+    pthread_mutexattr_init(&attr);
+    pthread_mutexattr_setpshared(&attr,PTHREAD_PROCESS_SHARED);
+    pthread_mutex_init(mutex, &attr);
+}
+
 
 /*
  * EFFECTS: write formatted log to file
@@ -49,8 +68,11 @@ void Log(enum LOG_TYPE type, const char* msg)
     char time_str[MAXLINE];
     time_t now = time(NULL);
     strftime(time_str, MAXLINE, "%a %d %b %Y %H:%M:%S %Z", localtime(&now));
+
+    pthread_mutex_lock(mutex);
     fprintf(FP, "[%s]%s: %s\n", log_type, time_str, msg);
     // Flush after write!!!!
     fflush(FP);
+    pthread_mutex_unlock(mutex);
 }
 

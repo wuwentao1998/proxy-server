@@ -4,6 +4,7 @@
 #include "macro.h"
 
 int initLog();
+void initMutex();
 void Log(enum LOG_TYPE type, const char* msg);
 
 #endif //LOG_H
