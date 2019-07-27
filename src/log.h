@@ -5,6 +5,8 @@
 
 int initLog();
 void initMutex();
+char* getFileName();
+int setFilePointer();
 void Log(enum LOG_TYPE type, const char* msg);
 
 #endif //LOG_H
