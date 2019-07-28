@@ -7,6 +7,7 @@
 #include <sys/mman.h>
 #include <pthread.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
 static const char* dir_name = "../log";
 
@@ -28,13 +29,28 @@ int initLog()
     }
 
     initMutex();
+    return regularCleanLog();
+}
+
+/*
+ * EFFECTS: periodically clean expired logs
+ * ERRORS: -1 for error
+ */
+int regularCleanLog()
+{
+    struct itimerval tick;
+    memset(&tick, 0, sizeof(tick));
+    tick.it_value.tv_sec = 1;
+    tick.it_interval.tv_sec = 24 * 60 * 60 * 1000;
+    if (setitimer(ITIMER_REAL, &tick, NULL) < 0)
+        return -1;
+
     return 0;
 }
 
 /*
  * EFFECTS: init mutex in a shared memory
  * Assign value to static global variable mutex
- * ERRORS: -1 for init error
  */
 void initMutex()
 {
@@ -79,7 +95,6 @@ int setFilePointer()
     free(file_name);
     return 0;
 }
-
 
 /*
  * EFFECTS: write formatted log to file
