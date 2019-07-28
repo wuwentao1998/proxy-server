@@ -12,12 +12,19 @@
 // #define DEBUG
 static char* shell_path = "../log/clean.sh";
 
+/*
+ * EFFECTS: use handler functions to deal with specific signals
+ */
 void handle_signals()
 {
     Signal(SIGCHLD, sigchld_handler);
     Signal(SIGALRM, sigalrm_hander);
 }
 
+/*
+ * EFFECTS: handle SIGGHLD signal
+ *          recycle all zombie child processes
+ */
 void sigchld_handler()
 {
     sigset_t mask, prev_mask;
@@ -46,6 +53,10 @@ void sigchld_handler()
 
 }
 
+/*
+ * EFFECTS: handle SIGALRM signal
+ *          clean expired log files
+ */
 void sigalrm_hander()
 {
     sigset_t mask, prev_mask;
