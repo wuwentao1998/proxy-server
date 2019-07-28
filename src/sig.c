@@ -17,6 +17,7 @@ static char* shell_path = "../log/clean.sh";
  */
 void handle_signals()
 {
+    Signal(SIGPIPE, SIG_IGN);
     Signal(SIGCHLD, sigchld_handler);
     Signal(SIGALRM, sigalrm_hander);
 }

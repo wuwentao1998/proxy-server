@@ -11,19 +11,26 @@
 
 #define DEBUG
 
-int main(int argc, char** argv)
+typedef struct sockaddr SA;
+
+void init()
 {
     if (initLog() != 0)
         exit(1);
 
-    if (argc < 2)
-    {
-	    fprintf(stdout, "usage: %s <port number to bind and listen>\n", argv[0]);
-		exit(1);
-	}
-
     // handle signals
     handle_signals();
+}
+
+int main(int argc, char** argv)
+{
+    if (argc < 2)
+    {
+        fprintf(stdout, "usage: %s <port number to bind and listen>\n", argv[0]);
+        exit(1);
+    }
+
+    init();
 
     int listenfd = Open_listenfd(argv[1]);
     if (listenfd < 0)
@@ -68,3 +75,5 @@ int main(int argc, char** argv)
 	}
 
 }
+
+

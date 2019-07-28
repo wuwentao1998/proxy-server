@@ -4,8 +4,8 @@
 #include "macro.h"
 #include <sys/socket.h>
 
-/* External variables */
-// extern char **environ;
+typedef void (*handler_t)(int);
+
 
 /* Unix I/O wrappers */
 void Close(int fd);
