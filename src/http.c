@@ -68,19 +68,21 @@ void deal(int clientfd)
     Rio_readinitb(&server_rio, end_serverfd);
 
     size_t n;
-    while((n = Rio_readlineb(&server_rio, buffer, MAXLINE))!= 0)
+    while((n = Rio_readlineb(&server_rio, buffer, MAXLINE)) > 0)
     {
-        message_size += n;
-        if(message_size < MAX_OBJECT_SIZE)
-            strcat(message, buffer);
-        else
+        if(message_size + n >= MAX_OBJECT_SIZE)
         {
             Rio_writen(clientfd , message, message_size);
             message_size = 0;
             message[0] = '\0';
         }
+
+        strcat(message, buffer);
+        message_size += n;
     }
-    Rio_writen(clientfd , message, message_size);
+
+    if (message_size > 0)
+        Rio_writen(clientfd , message, message_size);
 
     Close(end_serverfd);
 }
