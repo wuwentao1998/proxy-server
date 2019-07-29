@@ -212,7 +212,7 @@ ssize_t	rio_readlineb(rio_t *rp, void *usrbuf, size_t maxlen)
  */
 ssize_t rio_read(rio_t* rp, char* usrbuf, size_t n)
 {
-    while (rp->rio_cnt <= 0)
+    while(rp->rio_cnt <= 0)
     {
         rp->rio_cnt = read(rp->rio_fd, rp->rio_buf, sizeof(rp->rio_buf));
 
@@ -220,6 +220,8 @@ ssize_t rio_read(rio_t* rp, char* usrbuf, size_t n)
         {
             if (errno != EINTR)
                 return -1;
+            else
+                continue; // 被信号终止应该重读
         }
         else if (rp->rio_cnt == 0)
             return 0;

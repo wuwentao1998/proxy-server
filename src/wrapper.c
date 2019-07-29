@@ -6,6 +6,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <netdb.h>
+#include <signal.h>
+#include <stdlib.h>
 
 /*
  * EFFECTS: wrapper funtion for close
@@ -19,33 +21,6 @@ void Close(int fd)
 	    unix_error("Close error");
 }
 
-/*
- * EFFECTS: wrapper funtion for open
- *          add error handling
-*/
-int Open(const char* pathname, int flags, mode_t mode)
-{
-    int fd = open(pathname, flags, mode);
-
-    if (fd < 0)
-        unix_error("Open error");
-
-    return fd;
-}
-
-/*
- * EFFECTS: wrapper funtion for dup2
- *          add error handling
-*/
-int Dup2(int fd1, int fd2)
-{
-    int fd = dup2(fd1, fd2);
-
-    if (fd < 0)
-        unix_error("Dup2 error");
-
-    return fd;
-}
 
 /*
  * EFFECTS: wrapper funtion for accept
@@ -112,26 +87,15 @@ pid_t Fork()
     return pid;
 }
 
-/*
- * EFFECTS: wrapper funtion for execve
- *          add error handling
-*/
-void Execve(const char *filename, char *const argv[], char *const envp[])
-{
-    if (execve(filename, argv, envp) < 0)
-        unix_error("Execve error");
-}
 
 /*
- * EFFECTS: wrapper funtion for execve
- *          add error handling
+ * EFFECTS: wrapper funtion for signal
+ * Errors: exit the program when encountering error
 */
-pid_t Wait(int *status)
+void Signal(int signum, handler_t handler)
 {
-    pid_t pid = wait(status);
-
-    if (pid < 0)
-        unix_error("Wait error");
-
-    return pid;
+    handler_t error = signal(signum, handler);
+    if (error == SIG_ERR)
+        fatal_error("Signal error");
 }
+

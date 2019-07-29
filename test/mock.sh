@@ -2,6 +2,7 @@
 
 echo "=====starting mock test====="
 
+# 准备工作
 CUR_DIR=$(cd $(dirname $0); pwd)
 
 nohup python3 -m http.server 8080 &
@@ -12,19 +13,29 @@ make clean
 ./proxy 8000&
 
 curl "127.0.0.1:8080" > a.out
-curl -x 127.0.0.1:8000 "127.0.0.1:8080" > b.out
-diff a.out b.out > c.out
 
-if [ -s c.out ]
-then
-    echo "=====mock test failed====="
-    echo "content in diff file:"
-    cat c.out
-else
-    echo "=====mock test done====="
-fi
+# 开始mock测试，同时20个客户端请求服务器
 
-rm -f proxy a.out b.out c.out
+# 如果是Linux系统，请使用client_linux代替client_mac
+cp ../client/client_mac .
+./client_mac --num=20 --proxy="127.0.0.1:8000" --url="127.0.0.1:8080"
+
+for ((i=0; i < 20; i++))
+do
+    diff a.out ${i}.out > b.out
+
+    if [ -s b.out ]
+    then
+        echo "=====mock test failed====="
+        echo "content in diff file:"
+        cat b.out
+    fi
+done
+
+# 收尾工作
+echo "=====mock test done====="
+
+rm -f proxy client_mac *.out
 cd ${CUR_DIR}
 rm -f nohup.out
 ps aux | grep "python3 -m http.server 8080" | grep -v "grep" | awk '{print $2}' | xargs kill -9

@@ -45,7 +45,7 @@ int open_listenfd(char* port)
         char log_string[MAXLINE];
         sprintf(log_string, "Getaddrinfo failed (with port number: %s) : %s",
          port, gai_strerror(error_code));
-        Log(Error, log_string);
+        Log(Error,"open_listenfd", log_string);
         return -1;
     }
 
@@ -66,7 +66,7 @@ int open_listenfd(char* port)
         {
             char log_string[MAXLINE];
             sprintf(log_string, "Can't close listenfd: %s", strerror(errno));
-            Log(Error, log_string);
+            Log(Error, "open_listenfd", log_string);
             return - 2;
         }
     }
@@ -80,7 +80,7 @@ int open_listenfd(char* port)
         {
             char log_string[MAXLINE];
             sprintf(log_string, "Can't close listenfd: %s", strerror(errno));
-            Log(Error, log_string);
+            Log(Error, "open_listenfd", log_string);
         }
 
         return -2;
@@ -123,7 +123,7 @@ int open_serverfd(char* hostname, char* port)
         char log_string[MAXLINE];
         sprintf(log_string, "Getaddrinfo failed (with hostname: %s, port number: %s) : %s",
                 hostname, port, gai_strerror(error_code));
-        Log(Error, log_string);
+        Log(Error, "open_serverfd", log_string);
         return -1;
     }
 
@@ -139,7 +139,7 @@ int open_serverfd(char* hostname, char* port)
         {
             char log_string[MAXLINE];
             sprintf(log_string, "Can't close serverfd: %s", strerror(errno));
-            Log(Error, log_string);
+            Log(Error, "open_serverfd", log_string);
             return - 2;
         }
     }

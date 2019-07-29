@@ -4,7 +4,7 @@
 #include "macro.h"
 #include <unistd.h>
 
-// 内置的缓冲区保证了线程安全
+// 非static的内置的缓冲区保证了线程安全
 typedef struct {
     int rio_fd;                // Descriptor for rio_buf
     int rio_cnt;               // Unread bytes in rio_buf

@@ -4,7 +4,11 @@
 #include "macro.h"
 
 int initLog();
-void Log(enum LOG_TYPE type, const char* msg);
+void initMutex();
+char* getFileName();
+int setFilePointer();
+int regularCleanLog();
+void Log(enum LOG_TYPE type, const char* func_name, const char* msg);
 
 #endif //LOG_H
 

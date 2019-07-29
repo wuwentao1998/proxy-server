@@ -3,21 +3,34 @@
 #include "http.h"
 #include "wrapper.h"
 #include "log.h"
+#include "sig.h"
 #include <stdio.h>
 #include <sys/socket.h>
 #include <stdbool.h>
 #include <stdlib.h>
 
-int main(int argc, char** argv)
+#define DEBUG
+
+typedef struct sockaddr SA;
+
+void init()
 {
     if (initLog() != 0)
         exit(1);
 
+    // handle signals
+    handle_signals();
+}
+
+int main(int argc, char** argv)
+{
     if (argc < 2)
     {
-	    fprintf(stdout, "usage: %s <port number to bind and listen>\n", argv[0]);
-		exit(1);
-	}
+        fprintf(stdout, "usage: %s <port number to bind and listen>\n", argv[0]);
+        exit(1);
+    }
+
+    init();
 
     int listenfd = Open_listenfd(argv[1]);
     if (listenfd < 0)
@@ -36,13 +49,31 @@ int main(int argc, char** argv)
 
         char log_string[MAXLINE];
         sprintf(log_string, "Acecepted connection from <%s, %s>", hostname, port);
-		Log(Info, log_string);
+		Log(Info, "main", log_string);
 
-        // handle the request
-		deal(clientfd);
+        int pid = Fork();
+        if (pid < 0){
+            Close(clientfd);
+            continue;
+        }
+        else if (pid == 0)
+        {
+            Close(listenfd);
+            // handle the request
+            deal(clientfd);
+            Close(clientfd);
+            exit(0);
+        }
 
+#ifdef DEBUG
+        sprintf(log_string, "Process %d starts.", pid);
+        Log(Debug, "main", log_string);
+#endif
+
+        // Parent should also close clientfd!
 		Close(clientfd);
 	}
 
-	return 0;
 }
+
+
