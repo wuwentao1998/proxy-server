@@ -10,3 +10,4 @@ src/.idea/
 src/.DS_Store
 src/._.DS_Store
 log/*.log
+output/

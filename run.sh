@@ -10,17 +10,17 @@ if [ "${METHOD}" == "docker" ]; then
     # build
     docker build -t="${NAME}:${VERSION}" .
     # run
-    docker run --net host -itd --name ${NAME} ${NAME}:${VERSION} bash -c "./${NAME} ${PORT}"
+    docker run -p ${PORT}:${PORT} -itd --name ${NAME} ${NAME}:${VERSION} bash -c "./output/release/${NAME} ${PORT}"
 
 elif [ "${METHOD}" == "shell" ]; then
 
     cd src/
     make; make clean
     cd ..
-    mkdir output
-    cp ./src/proxy output
-    cp -r log ouput
-    cd output/
+    mkdir output/release
+    cp ./src/proxy output/release
+    cp -r log output
+    cd output/release
     ./proxy ${PORT}&
 
 elif [ "X${METHOD}" == "X" ]; then
