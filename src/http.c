@@ -159,15 +159,23 @@ int parse_URL(char* URL, char* URI, char* host, int* port_ptr)
 */
 void build_http_header(char* http_header, char* host, char* URI)
 {
+    /* http header string */
+    static const char* _user_agent = "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:10.0.3) Gecko/20120305 Firefox/10.0.3\r\n";
+    static const char* _connection = "Connection: close\r\n";
+    static const char* _proxy = "Proxy-Connection: close\r\n";
+    static const char* _host_format = "Host: %s\r\n";
+    static const char* _request_header_format = "GET %s HTTP/1.0\r\n";
+    static const char* _blank_line = "\r\n";
+
     char  _header[MAXLINE], _host[MAXWORD];
     sprintf(_header, _request_header_format, URI);
     sprintf(_host, _host_format, host);
-    sprintf(http_header, "%s%s%s",
+    sprintf(http_header, "%s%s%s%s%s",
             _header,
             _host,
-            //_connection,
+            _user_agent,
+            _connection,
             //_proxy,
-            //_user_agent,
             _blank_line);
 }
 
