@@ -14,7 +14,7 @@ void unix_error(char* message)
 {
     char log_string[MAXLINE];
     sprintf(log_string,  "%s: %s", message, strerror(errno));
-    Log(Error, log_string);
+    Log(Error, "unix_error", log_string);
     return;
 }
 
@@ -25,7 +25,7 @@ void gai_error(int code, char *message)
 {
     char log_string[MAXLINE];
     sprintf(log_string,  "%s: %s", message, gai_strerror(code));
-    Log(Error, log_string);
+    Log(Error, "gai_error", log_string);
     return;
 }
 
@@ -34,7 +34,7 @@ void gai_error(int code, char *message)
 */
 void fatal_error(char* message)
 {
-    Log(Error, message);
+    Log(Error, "fatal_error", message);
     exit(1);
 }
 

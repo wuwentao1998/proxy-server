@@ -49,7 +49,7 @@ int main(int argc, char** argv)
 
         char log_string[MAXLINE];
         sprintf(log_string, "Acecepted connection from <%s, %s>", hostname, port);
-		Log(Info, log_string);
+		Log(Info, "main", log_string);
 
         int pid = Fork();
         if (pid < 0){
@@ -67,7 +67,7 @@ int main(int argc, char** argv)
 
 #ifdef DEBUG
         sprintf(log_string, "Process %d starts.", pid);
-        Log(Debug, log_string);
+        Log(Debug, "main", log_string);
 #endif
 
         // Parent should also close clientfd!

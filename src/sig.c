@@ -41,7 +41,7 @@ void sigchld_handler()
         {
             char log_string[MAXLINE];
             sprintf(log_string,  "Process %d exits abnormally.", pid);
-            Log(Error, log_string);
+            Log(Error, "sigchld_handler", log_string);
         }
 #ifdef DEBUG
         char log_string[MAXLINE];

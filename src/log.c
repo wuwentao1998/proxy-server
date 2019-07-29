@@ -1,4 +1,5 @@
 #include "log.h"
+#include "wrapper.h"
 #include <stdio.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -54,7 +55,7 @@ int regularCleanLog()
  */
 void initMutex()
 {
-    mutex = (pthread_mutex_t*) mmap(NULL, sizeof(pthread_mutex_t),
+    mutex = (pthread_mutex_t*) Mmap(NULL, sizeof(pthread_mutex_t),
                                      PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANON, -1, 0);
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
@@ -99,7 +100,7 @@ int setFilePointer()
 /*
  * EFFECTS: write formatted log to file
  */
-void Log(enum LOG_TYPE type, const char* msg)
+void Log(enum LOG_TYPE type, const char* func_name, const char* msg)
 {
     char log_type[MAXWORD];
     switch(type)
@@ -124,7 +125,7 @@ void Log(enum LOG_TYPE type, const char* msg)
     if (local->tm_mday != cur_time->tm_mday)
         setFilePointer();
 
-    fprintf(FP, "[%s]%s: %s\n", log_type, time_str, msg);
+    fprintf(FP, "[%s]<%s>%s: %s\n", log_type, func_name, time_str, msg);
     // Flush after write!!!!
     fflush(FP);
 
