@@ -125,7 +125,7 @@ void Log(enum LOG_TYPE type, const char* func_name, const char* msg)
     if (local->tm_mday != cur_time->tm_mday)
         setFilePointer();
 
-    fprintf(FP, "[%s]<%s>%s: %s\n", log_type, func_name, time_str, msg);
+    fprintf(FP, "[%s], <%s>, %s: %s\n", log_type, func_name, time_str, msg);
     // Flush after write!!!!
     fflush(FP);
 

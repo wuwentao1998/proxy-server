@@ -14,14 +14,21 @@ make clean
 
 curl "127.0.0.1:8080" > a.out
 
-# 开始mock测试，同时20个客户端请求服务器
+# 开始mock测试，同时100个客户端请求服务器
 
 # 如果是Linux系统，请使用client_linux代替client_mac
 cp ../client/client_mac .
-./client_mac --num=20 --proxy="127.0.0.1:8000" --url="127.0.0.1:8080"
+./client_mac --num=100 --proxy="127.0.0.1:8000" --url="127.0.0.1:8080"
 
-for ((i=0; i < 20; i++))
+for ((i=0; i < 100; i++))
 do
+    if [ ! -f ${i}.out ]
+    then
+        echo "=====mock test failed====="
+        echo "file ${i}.out not exit"
+        exit 1
+    fi
+
     diff a.out ${i}.out > b.out
 
     if [ -s b.out ]
@@ -29,6 +36,7 @@ do
         echo "=====mock test failed====="
         echo "content in diff file:"
         cat b.out
+        exit 1
     fi
 done
 

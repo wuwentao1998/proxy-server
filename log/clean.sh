@@ -4,6 +4,9 @@ echo "====clean expired log files===="
 
 for file in $(find . -mtime +7)
 do
-    rm -f ${file}
+    if [ -f ${file} ]
+    then
+        rm -f ${file}
+    fi
 done
 
