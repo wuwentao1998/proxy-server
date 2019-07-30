@@ -12,7 +12,7 @@
 
 static const char* dir_name = "../log";
 
-static pthread_mutex_t* mutex;
+//static pthread_mutex_t* mutex;
 static FILE* FP;
 static struct tm* cur_time;
 
@@ -29,7 +29,7 @@ int initLog()
         return -1;
     }
 
-    initMutex();
+    //initMutex();
     return regularCleanLog();
 }
 
@@ -53,15 +53,15 @@ int regularCleanLog()
  * EFFECTS: init mutex in a shared memory
  * Assign value to static global variable mutex
  */
-void initMutex()
-{
-    mutex = (pthread_mutex_t*) Mmap(NULL, sizeof(pthread_mutex_t),
-                                     PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANON, -1, 0);
-    pthread_mutexattr_t attr;
-    pthread_mutexattr_init(&attr);
-    pthread_mutexattr_setpshared(&attr,PTHREAD_PROCESS_SHARED);
-    pthread_mutex_init(mutex, &attr);
-}
+//void initMutex()
+//{
+//    mutex = (pthread_mutex_t*) Mmap(NULL, sizeof(pthread_mutex_t),
+//                                     PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANON, -1, 0);
+//    pthread_mutexattr_t attr;
+//    pthread_mutexattr_init(&attr);
+//    pthread_mutexattr_setpshared(&attr,PTHREAD_PROCESS_SHARED);
+//    pthread_mutex_init(mutex, &attr);
+//}
 
 /*
  * EFFECTS: return filename according to current date
@@ -120,7 +120,7 @@ void Log(enum LOG_TYPE type, const char* func_name, const char* msg)
     struct tm* local = localtime(&now);
     strftime(time_str, MAXLINE, "%a %d %b %Y %H:%M:%S %Z", local);
 
-    pthread_mutex_lock(mutex);
+    //pthread_mutex_lock(mutex);
 
     if (local->tm_mday != cur_time->tm_mday)
         setFilePointer();
@@ -129,6 +129,6 @@ void Log(enum LOG_TYPE type, const char* func_name, const char* msg)
     // Flush after write!!!!
     fflush(FP);
 
-    pthread_mutex_unlock(mutex);
+    //pthread_mutex_unlock(mutex);
 }
 

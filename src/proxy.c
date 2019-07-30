@@ -4,14 +4,19 @@
 #include "wrapper.h"
 #include "log.h"
 #include "sig.h"
+#include "thread.h"
 #include <stdio.h>
 #include <sys/socket.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <pthread.h>
 
 #define DEBUG
 
 typedef struct sockaddr SA;
+
+pool job_pool;
+int thread_num;
 
 void init()
 {
@@ -20,15 +25,26 @@ void init()
 
     // handle signals
     handle_signals();
+
+    pool_init(&job_pool, POOL_SIZE);
+
+    for (int i = 0; i < thread_num; i++)
+    {
+        pthread_t tid;
+        pthread_create(&tid, NULL, worker, NULL);
+    }
+
 }
 
 int main(int argc, char** argv)
 {
-    if (argc < 2)
+    if (argc < 3)
     {
         fprintf(stdout, "usage: %s <port number to bind and listen>\n", argv[0]);
         exit(1);
     }
+
+    thread_num = atoi(argv[2]);
 
     init();
 
@@ -51,29 +67,28 @@ int main(int argc, char** argv)
         sprintf(log_string, "Acecepted connection from <%s, %s>", hostname, port);
 		Log(Info, "main", log_string);
 
-        int pid = Fork();
-        if (pid < 0){
-            Close(clientfd);
-            continue;
-        }
-        else if (pid == 0)
-        {
-            Close(listenfd);
-            // handle the request
-            deal(clientfd);
-            Close(clientfd);
-            exit(0);
-        }
-
-#ifdef DEBUG
-        sprintf(log_string, "Process %d starts.", pid);
-        Log(Debug, "main", log_string);
-#endif
-
-        // Parent should also close clientfd!
-		Close(clientfd);
+        pool_insert(&job_pool, clientfd);
 	}
 
 }
+
+void* worker(void* vargp)
+{
+    pthread_detach(pthread_self());
+    while(true)
+    {
+        int clientfd = pool_fetch(&job_pool);
+        if (clientfd >= 0)
+        {
+            char log_string[MAXLINE];
+            sprintf(log_string, "deal with clientfd %d", clientfd);
+            Log(Info, "worker", log_string);
+            deal(clientfd);
+            Close(clientfd);
+        }
+
+    }
+}
+
 
 
