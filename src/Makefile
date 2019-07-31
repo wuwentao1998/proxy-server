@@ -44,7 +44,7 @@ thread.o: thread.c thread.h
 	$(COMPILE)  -c thread.c
 
 cache.o: cache.c cache.h macro.h robust_IO.h log.h
-    $(COMPILE)  -c cache.c
+	$(COMPILE)  -c cache.c
 
 clean:
 	-rm -f $(SOURCE)
