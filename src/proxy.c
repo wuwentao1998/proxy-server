@@ -11,7 +11,6 @@
 #include <stdlib.h>
 #include <pthread.h>
 
-#define DEBUG
 
 typedef struct sockaddr SA;
 

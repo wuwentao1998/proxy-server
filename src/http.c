@@ -172,10 +172,10 @@ void build_http_header(char* http_header, char* host, char* URI)
     char  _header[MAXLINE], _host[MAXWORD];
     sprintf(_header, _request_header_format, URI);
     sprintf(_host, _host_format, host);
-    sprintf(http_header, "%s%s%s%s%s",
+    sprintf(http_header, "%s%s%s%s",
             _header,
             _host,
-            _user_agent,
+            //_user_agent,
             _connection,
             //_proxy,
             _blank_line);
