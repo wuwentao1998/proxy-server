@@ -5,6 +5,7 @@
 #include "log.h"
 #include "sig.h"
 #include "thread.h"
+#include "cache.h"
 #include <stdio.h>
 #include <sys/socket.h>
 #include <stdbool.h>
@@ -25,6 +26,8 @@ void init()
     // handle signals
     handle_signals();
 
+    init_cache();
+
     pool_init(&job_pool, POOL_SIZE);
 
     for (int i = 0; i < thread_num; i++)
@@ -32,6 +35,7 @@ void init()
         pthread_t tid;
         pthread_create(&tid, NULL, worker, NULL);
     }
+
 
 }
 

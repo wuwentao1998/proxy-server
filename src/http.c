@@ -3,10 +3,12 @@
 #include "error.h"
 #include "log.h"
 #include "wrapper.h"
+#include "cache.h"
 #include <stdio.h>
 #include<sys/stat.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 // #define DEBUG
 
@@ -19,7 +21,7 @@ void deal(int clientfd)
     /* read request line and headers */
     char buffer[MAXLINE];
     char headline[MAXLINE];
-    char method[MAXWORD], URL[MAXWORD], version[MAXWORD];
+    char method[MAXWORD], URL[MAXWORD], URL_c[MAXWORD], version[MAXWORD];
     rio_t client_rio;
 
     Rio_readinitb(&client_rio, clientfd);
@@ -34,6 +36,12 @@ void deal(int clientfd)
         "Sorry, this proxy can't implement this method.");
         return;
     }
+
+    /* read cache */
+    if (read_cache(URL, clientfd) == 0)
+        return;
+    else
+        strcpy(URL_c, URL);
 
     int port;
     char host[MAXWORD], URI[MAXWORD];
@@ -66,12 +74,14 @@ void deal(int clientfd)
     int message_size = 0;
     rio_t server_rio;
     Rio_readinitb(&server_rio, end_serverfd);
-
     size_t n;
+    bool is_cache = true;
+
     while((n = Rio_readlineb(&server_rio, buffer, MAXLINE)) > 0)
     {
         if(message_size + n >= MAX_OBJECT_SIZE)
         {
+            is_cache = false;
             Rio_writen(clientfd , message, message_size);
             message_size = 0;
             message[0] = '\0';
@@ -84,7 +94,11 @@ void deal(int clientfd)
     if (message_size > 0)
         Rio_writen(clientfd , message, message_size);
 
+    if (is_cache)
+         write_cache(URL_c, message, message_size);
+
     Close(end_serverfd);
+    
 }
 
 /*

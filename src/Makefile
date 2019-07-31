@@ -5,15 +5,16 @@ CFLAGS = -std=gnu99
 LDFLAGS = -lpthread
 
 TARGET = proxy
-SOURCE = connect.o error.o http.o proxy.o robust_IO.o wrapper.o log.o sig.o thread.o
+SOURCE = connect.o error.o http.o proxy.o robust_IO.o wrapper.o log.o sig.o thread.o cache.o
 
 COMPILE = $(CC) $(CFLAGS)
+LINK = $(CC) $(CFLAGS) $(LDFLAGS)
 
 all: $(TARGET)
 	@echo =====proxy successfully constructed=====
 
 $(TARGET): $(SOURCE)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(SOURCE)
+	$(LINK)  -o $(TARGET) $(SOURCE)
 
 connect.o: connect.c connect.h macro.h error.h log.h
 	$(COMPILE)  -c connect.c
@@ -21,10 +22,10 @@ connect.o: connect.c connect.h macro.h error.h log.h
 error.o: error.c error.h macro.h log.h
 	$(COMPILE)  -c error.c
 
-http.o: http.c http.h wrapper.h robust_IO.h macro.h error.h connect.h log.h
+http.o: http.c http.h wrapper.h robust_IO.h macro.h error.h connect.h log.h cache.h
 	$(COMPILE)  -c http.c
 
-proxy.o: proxy.c http.h macro.h connect.h wrapper.h sig.h log.h thread.h
+proxy.o: proxy.c http.h macro.h connect.h wrapper.h sig.h log.h thread.h cache.h
 	$(COMPILE)  -c proxy.c
 
 robust_IO.o: robust_IO.c robust_IO.h macro.h wrapper.h error.h
@@ -41,6 +42,9 @@ sig.o: sig.c sig.h wrapper.h log.h
 
 thread.o: thread.c thread.h
 	$(COMPILE)  -c thread.c
+
+cache.o: cache.c cache.h macro.h robust_IO.h log.h
+    $(COMPILE)  -c cache.c
 
 clean:
 	-rm -f $(SOURCE)
