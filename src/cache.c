@@ -64,7 +64,7 @@ int read_cache(char *url,int fd)
         cur = caches[t];
         p = cur.cacheobjs;
 
-        for(;i < cur.size; i++,p++)
+        for(i = 0;i < cur.size; i++,p++)
         {
             if(p->time != 0 && strcmp(url,p->url) == 0)
                 break;
@@ -112,7 +112,7 @@ void write_cache(char *url, char *data, int len)
 
     char log_string[MAXLINE];
     sprintf(log_string,"start writing cache: %s %d ", url, t);
-    Log(Info, "read_cache", log_string);
+    Log(Info, "write_cache", log_string);
 
     /* find empty block */
     cache_type cur = caches[t];

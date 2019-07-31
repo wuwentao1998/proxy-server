@@ -98,7 +98,7 @@ void deal(int clientfd)
          write_cache(URL_c, message, message_size);
 
     Close(end_serverfd);
-    
+
 }
 
 /*
