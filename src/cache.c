@@ -149,7 +149,7 @@ void write_cache(char *url, char *data, int len)
 
 }
 
-int64_t currentTimeMillis() {
+long long currentTimeMillis() {
     struct timeval time;
     gettimeofday(&time, NULL);
     int64_t s1 = (int64_t)(time.tv_sec) * 1000;

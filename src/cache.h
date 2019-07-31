@@ -3,13 +3,13 @@
 
 #include "macro.h"
 #include <sys/time.h>
-#include <ntsid.h>
+#include <pthread.h>
 
 typedef struct cache_block{
     char* url;
     char* data;
     int datasize;
-    int64_t time;
+    long long time;
     pthread_rwlock_t rwlock;
 } cache_block;
 
@@ -23,6 +23,6 @@ void init_cache();
 int read_cache(char* url, int fd);
 void write_cache(char* url, char* data, int len);
 void free_cache();
-int64_t currentTimeMillis();
+long long currentTimeMillis();
 
 #endif

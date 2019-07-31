@@ -3,7 +3,7 @@
 
 #include <semaphore.h>
 
-#define MAC
+// #define MAC
 
 #ifdef MAC
 typedef struct
