@@ -17,3 +17,8 @@
 - Split the log file and automatically delete expired logs
 - Avoid log write contention
 - Support run with one-line code
+# v0.5
+- Cache visited web pages
+- Implement multithreading with thread pools
+- Add location to the log record
+- Fix some known problems

@@ -8,6 +8,7 @@
 #define MAX_OBJECT_SIZE 102400
 #define PORT_LEN 10
 #define TYPES 6
+#define POOL_SIZE 128
 
 
 enum LOG_TYPE

@@ -2,40 +2,49 @@
 
 CC = gcc
 CFLAGS = -std=gnu99
-# LDFLAGS = -lpthread
+LDFLAGS = -lpthread
 
 TARGET = proxy
-SOURCE = connect.o error.o http.o proxy.o robust_IO.o wrapper.o log.o sig.o
+SOURCE = connect.o error.o http.o proxy.o robust_IO.o wrapper.o log.o sig.o thread.o cache.o
+
+COMPILE = $(CC) $(CFLAGS)
+LINK = $(CC) $(CFLAGS) $(LDFLAGS)
 
 all: $(TARGET)
 	@echo =====proxy successfully constructed=====
 
 $(TARGET): $(SOURCE)
-	$(CC) $(CFLAGS) -o $(TARGET) $(SOURCE)
+	$(LINK)  -o $(TARGET) $(SOURCE)
 
 connect.o: connect.c connect.h macro.h error.h log.h
-	$(CC) $(CFLAGS) -c connect.c
+	$(COMPILE)  -c connect.c
 
 error.o: error.c error.h macro.h log.h
-	$(CC) $(CFLAGS) -c error.c
+	$(COMPILE)  -c error.c
 
-http.o: http.c http.h wrapper.h robust_IO.h macro.h error.h connect.h log.h
-	$(CC) $(CFLAGS) -c http.c
+http.o: http.c http.h wrapper.h robust_IO.h macro.h error.h connect.h log.h cache.h
+	$(COMPILE)  -c http.c
 
-proxy.o: proxy.c http.h macro.h connect.h wrapper.h sig.h log.h
-	$(CC) $(CFLAGS) -c proxy.c
+proxy.o: proxy.c http.h macro.h connect.h wrapper.h sig.h log.h thread.h cache.h
+	$(COMPILE)  -c proxy.c
 
 robust_IO.o: robust_IO.c robust_IO.h macro.h wrapper.h error.h
-	$(CC) $(CFLAGS) -c robust_IO.c
+	$(COMPILE)  -c robust_IO.c
 
 wrapper.o: wrapper.c wrapper.h macro.h error.h
-	$(CC) $(CFLAGS) -c wrapper.c
+	$(COMPILE)  -c wrapper.c
 
 log.o: log.c log.h macro.h
-	$(CC) $(CFLAGS) -c log.c
+	$(COMPILE)  -c log.c
 
 sig.o: sig.c sig.h wrapper.h log.h
-	$(CC) $(CFLAGS) -c sig.c
+	$(COMPILE)  -c sig.c
+
+thread.o: thread.c thread.h
+	$(COMPILE)  -c thread.c
+
+cache.o: cache.c cache.h macro.h robust_IO.h log.h
+	$(COMPILE)  -c cache.c
 
 clean:
 	-rm -f $(SOURCE)
